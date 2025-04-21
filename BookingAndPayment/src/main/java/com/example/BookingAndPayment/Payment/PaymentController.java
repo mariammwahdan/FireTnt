@@ -44,21 +44,8 @@ public class PaymentController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // Endpoint 4: Get All Payments by User ID
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Payment>> getAllPaymentsByUserId(@PathVariable long userId) {
-        List<Payment> payments = paymentService.getAllPaymentsByUserId(userId);
-        return new ResponseEntity<>(payments, HttpStatus.OK);
-    }
 
-    // Endpoint 5: Get All Payments by Property ID
-    @GetMapping("/property/{propertyId}")
-    public ResponseEntity<List<Payment>> getAllPaymentsByPropertyId(@PathVariable long propertyId) {
-        List<Payment> payments = paymentService.getAllPaymentsByPropertyId(propertyId);
-        return new ResponseEntity<>(payments, HttpStatus.OK);
-    }
-
-    // Endpoint 6: Update Payment Status
+    // Endpoint 4: Update Payment Status
     @PutMapping("/{id}/status")
     public ResponseEntity<Payment> updatePaymentStatus(@PathVariable long id, @RequestBody Payment.PaymentStatus status) {
         Payment updatedPayment = paymentService.updatePaymentStatus(id, status);

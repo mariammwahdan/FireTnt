@@ -37,17 +37,7 @@ public class PaymentService {
         return paymentRepository.findByBookingId(bookingId);
     }
 
-    // 4. Get All Payments by User ID
-    public List<Payment> getAllPaymentsByUserId(long userId) {
-        return paymentRepository.findByUserId(userId); // You will need to adjust the repository method to support this
-    }
-
-    // 5. Get All Payments by Property ID
-    public List<Payment> getAllPaymentsByPropertyId(long propertyId) {
-        return paymentRepository.findByPropertyId(propertyId); // You will need to adjust the repository method to support this
-    }
-
-    // 6. Update Payment Status
+    // 4. Update Payment Status
     public Payment updatePaymentStatus(long id, Payment.PaymentStatus status) {
         Optional<Payment> optionalPayment = paymentRepository.findById(id);
         if (optionalPayment.isPresent()) {
