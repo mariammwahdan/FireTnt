@@ -1,4 +1,6 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
 
-public class Host {
+import com.example.UserAuthenticationAndRoleManagement.User.User;
+
+public class Host extends User {
 }
