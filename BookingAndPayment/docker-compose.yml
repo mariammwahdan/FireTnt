@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: service-room
+      POSTGRES_DB: booking-and-payment-service
     ports:
       - "5431:5432"
     volumes:
