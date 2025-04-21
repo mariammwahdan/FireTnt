@@ -1,19 +1,19 @@
 services:
   service-room-pg:
     image: postgres:latest
-    container_name: room-pg
+    container_name: room-pg-properties
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: service-room
+      POSTGRES_DB: properties=service
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
       - room_data:/var/lib/postgresql/data
     restart: unless-stopped
   service-room-redis:
     image: redis:latest
-    container_name: room-redis
+    container_name: room-redis-properties
     ports:
       - "6382:6379"
     volumes:
