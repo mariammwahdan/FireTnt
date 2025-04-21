@@ -1,6 +1,7 @@
 package com.example.BookingAndPayment.Payment;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
@@ -10,8 +11,12 @@ public class Payment {
     private long id;
     private long bookingId;
     private double amount;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    private LocalDateTime createdAt; // Added createdAt attribute
+
     public enum PaymentStatus {
         PENDING,
         COMPLETED,
@@ -48,5 +53,13 @@ public class Payment {
 
     public void setStatus(PaymentStatus status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
