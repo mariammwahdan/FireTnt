@@ -122,7 +122,18 @@ public class PropertyService {
         if (dto.getIsBooked() != null) property.setBooked(dto.getIsBooked());
         if (dto.getHostId() != null) property.setHostId(dto.getHostId());
 
-        return propertyRepository.save(property);
+        Property updated= propertyRepository.save(property);
+        //Invalidate caches
+        String propertyCacheKey = "property::" + id;
+        try {
+            redisClient.delete(propertyCacheKey); // Invalidate individual property cache
+            redisClient.delete(ALL_PROPERTIES_CACHE_KEY); // Invalidate all properties list cache
+            log.info("[updateProperty] Invalidated Redis cache keys: {}, {}", propertyCacheKey, ALL_PROPERTIES_CACHE_KEY);
+        } catch (Exception e) {
+            log.error("[updateProperty] Failed to invalidate cache keys: {}, {} due to {}", propertyCacheKey, ALL_PROPERTIES_CACHE_KEY, e.getMessage());
+        }
+
+        return updated;
     }
 
     public void deleteProperty(Integer id) {
