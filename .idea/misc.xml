@@ -9,11 +9,11 @@
         <option value="$PROJECT_DIR$/Notifications/pom.xml" />
         <option value="$PROJECT_DIR$/BookingAndPayment/pom.xml" />
         <option value="$PROJECT_DIR$/UserAuthenticationAndRoleManagement/pom.xml" />
-        <option value="D:/senior2/Term2 (Laaassssttt term)/Aspects/Airbnb/UsersInfo/UsersInfo/pom.xml" />
+        <option value="$PROJECT_DIR$/../../../../senior2/Term2 (Laaassssttt term)/Aspects/Airbnb/UsersInfo/UsersInfo/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21_PREVIEW" project-jdk-name="corretto-21 (3)" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21_PREVIEW" project-jdk-name="corretto-21" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
