@@ -141,6 +141,14 @@ public class PropertyService {
             throw new RuntimeException("Property not found");
         }
         propertyRepository.deleteById(id);
+        String propertyCacheKey = "property::" + id;
+        try {
+            redisClient.delete(propertyCacheKey); // Remove specific property cache
+            redisClient.delete(ALL_PROPERTIES_CACHE_KEY); // Invalidate the list cache
+            log.info("[deleteProperty] Invalidated cache keys: {}, {}", propertyCacheKey, ALL_PROPERTIES_CACHE_KEY);
+        } catch (Exception e) {
+            log.error("[deleteProperty] Error invalidating cache for keys {} and {}: {}", propertyCacheKey, ALL_PROPERTIES_CACHE_KEY, e.getMessage());
+        }
     }
 
     public boolean isBooked(Integer id) {
