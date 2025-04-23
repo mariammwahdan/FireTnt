@@ -35,7 +35,19 @@ public class PropertyService {
         property.setPricePerNight(dto.getPricePerNight());
         property.setHostId(dto.getHostId());
         property.setBooked(false); // newly created properties are not booked
-        return propertyRepository.save(property);
+
+        Property savedProperty = propertyRepository.save(property);
+
+        // Invalidate caches
+        try {
+            String allPropertiesCacheKey = ALL_PROPERTIES_CACHE_KEY; // e.g., "property::all"
+            redisClient.delete(allPropertiesCacheKey);
+            log.info("[createProperty] Invalidated Redis cache key: {}", allPropertiesCacheKey);
+        } catch (Exception e) {
+            log.error("[createProperty] Failed to invalidate cache due to {}", e.getMessage());
+        }
+
+        return savedProperty;
     }
 
     public List<Property> getAllProperties() {

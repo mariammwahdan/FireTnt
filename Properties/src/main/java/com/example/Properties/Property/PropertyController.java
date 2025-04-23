@@ -4,11 +4,14 @@ import com.example.Properties.Property.DTO.CreatePropertyDTO;
 import com.example.Properties.Property.DTO.UpdatePropertyDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import java.util.List;
-
-@RestController
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+@Controller
 @RequestMapping("/api/properties")
 public class PropertyController {
 
@@ -18,26 +21,38 @@ public class PropertyController {
         this.propertyService = propertyService;
     }
 
-    @PostMapping
-    public ResponseEntity<Property> createProperty(@Valid @RequestBody CreatePropertyDTO dto) {
-        Property property = propertyService.createProperty(dto);
-        return new ResponseEntity<>(property,HttpStatus.CREATED);
+    @GetMapping("/create")
+    public String showAddForm(Model model) {
+        model.addAttribute("propertyForm", new CreatePropertyDTO());
+    return "add-property-form"    ;
     }
-
-    @GetMapping
-    public ResponseEntity<List<Property>> getAllProperties() {
-        List<Property> propertyList = propertyService.getAllProperties();
-        return new ResponseEntity<>(propertyList,HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
-        Property property = propertyService.getPropertyById(id);
-        if (property != null) {
-            return new ResponseEntity<>(property,HttpStatus.OK);
+    @PostMapping("/create")
+    public String createProperty(@Valid @ModelAttribute("propertyForm") CreatePropertyDTO dto,
+                                                   BindingResult result,
+                                                   RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "add-property-form";
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        propertyService.createProperty(dto);
+        redirectAttributes.addFlashAttribute("success", "Property created successfully!");
+        return "redirect:/api/properties/all";
     }
+
+    @GetMapping("/all")
+    public String getAllProperties(Model model) {
+        List<Property> propertyList = propertyService.getAllProperties();
+        model.addAttribute("properties", propertyList);
+        return "properties-list";
+    }
+
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
+//        Property property = propertyService.getPropertyById(id);
+//        if (property != null) {
+//            return new ResponseEntity<>(property,HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//    }
 
     @GetMapping("/host/{hostId}")
     public ResponseEntity<List<Property>> getPropertiesByHostId(@PathVariable Long hostId) {
@@ -47,17 +62,50 @@ public class PropertyController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<Property> updateProperty(
-            @PathVariable Integer id,
-            @RequestBody UpdatePropertyDTO dto) {
-        Property updated = propertyService.updateProperty(id, dto);
-        if (updated != null) {
-            return new ResponseEntity<>(updated, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Integer id, Model model) {
+        Property property = propertyService.getPropertyById(id);
+        if (property == null) {
+            return "redirect:api/properties/all"; // Or show a 404 page
         }
+        UpdatePropertyDTO dto = new UpdatePropertyDTO();
+        dto.setTitle(property.getTitle());
+        dto.setDescription(property.getDescription());
+        dto.setPricePerNight(property.getPricePerNight());
+        dto.setHostId(property.getHostId()); // Assuming you have a getHost().getId()
+        dto.setIsBooked(property.isBooked());
+        model.addAttribute("propertyId", id);
+        model.addAttribute("propertyForm", dto);
+        return "edit-property-form";
+    }
+    @PostMapping("/edit/{id}")
+    public String updateProperty(
+            @PathVariable Integer id,
+            @ModelAttribute("propertyForm") @Valid UpdatePropertyDTO dto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "edit-property-form";
+        }
+
+        Property updated = propertyService.updateProperty(id, dto);
+        Integer pID=updated.getPropertyId();
+        if (updated != null) {
+            redirectAttributes.addFlashAttribute("successMessage", "Property updated successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Property not found.");
+        }
+        return "redirect:/api/properties/"+pID;
+    }
+
+    @GetMapping("/{id}")
+    public String viewPropertyDetails(@PathVariable Integer id, Model model) {
+        Property property = propertyService.getPropertyById(id);
+        if (property == null) {
+            return "redirect:/api/properties/all";
+        }
+        model.addAttribute("property", property);
+        return "property-details";
     }
 
     @DeleteMapping("/{id}")
