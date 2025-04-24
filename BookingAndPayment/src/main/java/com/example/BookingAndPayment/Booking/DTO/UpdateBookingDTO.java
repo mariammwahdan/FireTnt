@@ -1,6 +1,8 @@
 package com.example.BookingAndPayment.Booking.DTO;
 
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 
 public class UpdateBookingDTO {
@@ -12,9 +14,13 @@ public class UpdateBookingDTO {
     private long guestId;
 
     @NotNull(message = "Check-in date is required")
+    @FutureOrPresent(message = "Check-in date must be today or in the future")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date checkIn;
 
     @NotNull(message = "Check-out date is required")
+    @Future(message = "Check-out date must be in the future")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date checkOut;
 
     @Positive(message = "Price must be a positive number")
@@ -72,6 +78,7 @@ public class UpdateBookingDTO {
         this.noOfNights = noOfNights;
     }
 
+    // Additional validation logic
     public boolean isDateRangeValid() {
         return checkIn != null && checkOut != null && checkOut.after(checkIn);
     }
