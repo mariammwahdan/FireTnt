@@ -2,9 +2,13 @@ package com.example.BookingAndPayment.Payment;
 
 import com.example.BookingAndPayment.Annotations.DistributedLock;
 import com.example.BookingAndPayment.Payment.DTO.CreatePaymentDTO;
+import com.example.BookingAndPayment.Redis.RedisClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -13,15 +17,46 @@ import java.util.concurrent.TimeUnit;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final RedisClient redisClient;
+    private final ObjectMapper objectMapper;
+
+    private static final String PAYMENT_CACHE_PREFIX = "payment";
+    private static final Duration CACHE_TTL = Duration.ofMinutes(10);
 
     @Autowired
-    public PaymentService(PaymentRepository paymentRepository) {
+    public PaymentService(PaymentRepository paymentRepository, RedisClient redisClient, ObjectMapper objectMapper) {
         this.paymentRepository = paymentRepository;
+        this.redisClient = redisClient;
+        this.objectMapper = objectMapper;
     }
 
-    // 1. Create Payment
+    public List<Payment> getAllPayments() {
+        try {
+            String cachedPayments = redisClient.get(PAYMENT_CACHE_PREFIX + ":all");
+            if (cachedPayments != null) {
+                return objectMapper.readValue(cachedPayments, List.class);
+            }
+        } catch (JsonProcessingException e) {
+            // Fallback to DB if cache retrieval fails
+        }
+
+        List<Payment> payments = paymentRepository.findAll();
+        try {
+            String paymentsJson = objectMapper.writeValueAsString(payments);
+            redisClient.set(PAYMENT_CACHE_PREFIX + ":all", paymentsJson, CACHE_TTL);
+        } catch (JsonProcessingException e) {
+            // Cache store failed, no problem
+        }
+
+        return payments;
+    }
+
+    public Payment getPaymentByBookingId(long bookingId) {
+        return paymentRepository.findByBookingId(bookingId);
+    }
+
     @DistributedLock(
-            keyPrefix = "payment:create",
+            keyPrefix = PAYMENT_CACHE_PREFIX,
             keyIdentifierExpression = "#createPaymentDTO.bookingId",
             leaseTime = 30,
             timeUnit = TimeUnit.SECONDS
@@ -32,23 +67,17 @@ public class PaymentService {
         payment.setAmount(createPaymentDTO.getAmount());
         payment.setStatus(createPaymentDTO.getStatus());
         payment.setCreatedAt(createPaymentDTO.getCreatedAt());
-        return paymentRepository.save(payment);
-    }
 
-    // 2. Get All Payments
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
-    }
+        Payment savedPayment = paymentRepository.save(payment);
 
-    // 3. Get Payment by Booking ID
-    public Payment getPaymentByBookingId(long bookingId) {
-        return paymentRepository.findByBookingId(bookingId);
-    }
+        // 🧹 Invalidate cache after create
+        redisClient.delete(PAYMENT_CACHE_PREFIX + ":all");
 
-    // 4. Update Payment Status
+        return savedPayment;
+    }
 
     @DistributedLock(
-            keyPrefix = "payment:update",
+            keyPrefix = PAYMENT_CACHE_PREFIX,
             keyIdentifierExpression = "#id",
             leaseTime = 30,
             timeUnit = TimeUnit.SECONDS
@@ -58,7 +87,13 @@ public class PaymentService {
         if (optionalPayment.isPresent()) {
             Payment payment = optionalPayment.get();
             payment.setStatus(status);
-            return paymentRepository.save(payment);
+
+            Payment updatedPayment = paymentRepository.save(payment);
+
+            // 🧹 Invalidate cache after update
+            redisClient.delete(PAYMENT_CACHE_PREFIX + ":all");
+
+            return updatedPayment;
         }
         return null;
     }

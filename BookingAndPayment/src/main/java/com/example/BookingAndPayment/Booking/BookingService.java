@@ -1,46 +1,54 @@
 package com.example.BookingAndPayment.Booking;
-
 import com.example.BookingAndPayment.Annotations.DistributedLock;
 import com.example.BookingAndPayment.Booking.DTO.CreateBookingDTO;
+import com.example.BookingAndPayment.Redis.RedisClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final RedisClient redisClient;
+    private final ObjectMapper objectMapper;
 
-    public BookingService(BookingRepository bookingRepository) {
+    private static final String ALL_BOOKINGS_CACHE_KEY = "bookings:all";
+    private static final Duration CACHE_TTL = Duration.ofMinutes(10);
+    private static final String BOOKING_LOCK_PREFIX = "booking";
+
+    @Autowired
+    public BookingService(BookingRepository bookingRepository, RedisClient redisClient, ObjectMapper objectMapper) {
         this.bookingRepository = bookingRepository;
-    }
-    @DistributedLock(
-            keyPrefix = "booking:create",
-            keyIdentifierExpression = "#dto.propertyId", // Lock per property to avoid double-booking
-            leaseTime = 60,
-            timeUnit = TimeUnit.SECONDS
-    )
-    public Booking createBooking(CreateBookingDTO dto) {
-        if (!dto.isDateRangeValid()) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
-        }
-
-        Booking booking = new Booking();
-        booking.setPropertyId(dto.getPropertyId());
-        booking.setGuestId(dto.getGuestId());
-        booking.setCheckIn(dto.getCheckIn());
-        booking.setCheckOut(dto.getCheckOut());
-        booking.setPrice(dto.getPrice());
-        booking.setNoOfNights(dto.getNoOfNights());
-        booking.setStatus(Booking.BookingStatus.ACTIVE);
-
-        return bookingRepository.save(booking);
+        this.redisClient = redisClient;
+        this.objectMapper = objectMapper;
     }
 
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+        try {
+            String cachedBookings = redisClient.get(ALL_BOOKINGS_CACHE_KEY);
+            if (cachedBookings != null) {
+                return objectMapper.readValue(cachedBookings, List.class);
+            }
+        } catch (JsonProcessingException e) {
+            // Fallback to DB if cache retrieval fails
+        }
+
+        List<Booking> bookings = bookingRepository.findAll();
+        try {
+            String bookingsJson = objectMapper.writeValueAsString(bookings);
+            redisClient.set(ALL_BOOKINGS_CACHE_KEY, bookingsJson, CACHE_TTL);
+        } catch (JsonProcessingException e) {
+            // Cache store failed, no problem
+        }
+
+        return bookings;
     }
 
     public Booking getBookingById(Long id) {
@@ -61,31 +69,37 @@ public class BookingService {
                 .mapToDouble(Booking::getPrice).sum();
     }
 
-    public Double getTotalProfitByPropertyId(Long propertyId) {
-        return bookingRepository.findByPropertyId(propertyId).stream()
-                .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
-                .mapToDouble(Booking::getPrice).sum();
-    }
+    @DistributedLock(
+            keyPrefix = BOOKING_LOCK_PREFIX,
+            keyIdentifierExpression = "#dto.propertyId",
+            leaseTime = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
+    public Booking createBooking(CreateBookingDTO dto) {
+        if (!dto.isDateRangeValid()) {
+            throw new IllegalArgumentException("Check-out date must be after check-in date");
+        }
 
-    public Double getTotalProfit() {
-        return bookingRepository.findAll().stream()
-                .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
-                .mapToDouble(Booking::getPrice).sum();
-    }
+        Booking booking = new Booking();
+        booking.setPropertyId(dto.getPropertyId());
+        booking.setGuestId(dto.getGuestId());
+        booking.setCheckIn(dto.getCheckIn());
+        booking.setCheckOut(dto.getCheckOut());
+        booking.setPrice(dto.getPrice());
+        booking.setNoOfNights(dto.getNoOfNights());
+        booking.setStatus(Booking.BookingStatus.ACTIVE);
 
-    public boolean isUpcoming(Long id) {
-        Booking booking = getBookingById(id);
-        return booking.getCheckIn().after(new Date());
-    }
+        Booking savedBooking = bookingRepository.save(booking);
 
-    public int getBookingDuration(Long id) {
-        Booking booking = getBookingById(id);
-        return booking.getNoOfNights();
+        // 🧹 Invalidate cache after create
+        redisClient.delete(ALL_BOOKINGS_CACHE_KEY);
+
+        return savedBooking;
     }
 
     @DistributedLock(
-            keyPrefix = "booking:cancel",
-            keyIdentifierExpression = "#id", // Lock by booking ID
+            keyPrefix = BOOKING_LOCK_PREFIX,
+            keyIdentifierExpression = "#id",
             leaseTime = 60,
             timeUnit = TimeUnit.SECONDS
     )
@@ -95,6 +109,11 @@ public class BookingService {
             throw new RuntimeException("Booking already cancelled");
         }
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        return bookingRepository.save(booking);
+        Booking updatedBooking = bookingRepository.save(booking);
+
+        // 🧹 Invalidate cache after update
+        redisClient.delete(ALL_BOOKINGS_CACHE_KEY);
+
+        return updatedBooking;
     }
 }
