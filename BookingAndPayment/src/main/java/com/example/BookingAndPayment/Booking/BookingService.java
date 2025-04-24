@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Date;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -54,13 +54,26 @@ public class BookingService {
     public Booking getBookingById(Long id) {
         return bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking not found"));
     }
-
+    public Double getTotalProfitByPropertyId(Long propertyId) {
+        return bookingRepository.findByPropertyId(propertyId).stream()
+                .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
+                .mapToDouble(Booking::getPrice).sum();
+    }
     public List<Booking> getBookingsByGuestId(Long guestId) {
         return bookingRepository.findByGuestId(guestId);
     }
 
     public List<Booking> getBookingsByPropertyId(Long propertyId) {
         return bookingRepository.findByPropertyId(propertyId);
+    }
+    public Double getTotalProfit() {
+        return bookingRepository.findAll().stream()
+                .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
+                .mapToDouble(Booking::getPrice).sum();
+    }
+    public boolean isUpcoming(Long id) {
+        Booking booking = getBookingById(id);
+        return booking.getCheckIn().after(new Date());
     }
 
     public Double getTotalProfitByUserId(Long userId) {
@@ -97,12 +110,16 @@ public class BookingService {
         return savedBooking;
     }
 
+    public int getBookingDuration(Long id) {
+        Booking booking = getBookingById(id);
+        return booking.getNoOfNights();}
     @DistributedLock(
             keyPrefix = BOOKING_LOCK_PREFIX,
             keyIdentifierExpression = "#id",
             leaseTime = 60,
             timeUnit = TimeUnit.SECONDS
     )
+
     public Booking cancelBooking(Long id) {
         Booking booking = getBookingById(id);
         if (booking.getStatus() == Booking.BookingStatus.CANCELLED) {
