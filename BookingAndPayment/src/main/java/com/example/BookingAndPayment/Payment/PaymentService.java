@@ -1,11 +1,13 @@
 package com.example.BookingAndPayment.Payment;
 
+import com.example.BookingAndPayment.Annotations.DistributedLock;
 import com.example.BookingAndPayment.Payment.DTO.CreatePaymentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class PaymentService {
@@ -18,6 +20,12 @@ public class PaymentService {
     }
 
     // 1. Create Payment
+    @DistributedLock(
+            keyPrefix = "payment:create",
+            keyIdentifierExpression = "#createPaymentDTO.bookingId",
+            leaseTime = 30,
+            timeUnit = TimeUnit.SECONDS
+    )
     public Payment createPayment(CreatePaymentDTO createPaymentDTO) {
         Payment payment = new Payment();
         payment.setBookingId(createPaymentDTO.getBookingId());
@@ -38,6 +46,13 @@ public class PaymentService {
     }
 
     // 4. Update Payment Status
+
+    @DistributedLock(
+            keyPrefix = "payment:update",
+            keyIdentifierExpression = "#id",
+            leaseTime = 30,
+            timeUnit = TimeUnit.SECONDS
+    )
     public Payment updatePaymentStatus(long id, Payment.PaymentStatus status) {
         Optional<Payment> optionalPayment = paymentRepository.findById(id);
         if (optionalPayment.isPresent()) {

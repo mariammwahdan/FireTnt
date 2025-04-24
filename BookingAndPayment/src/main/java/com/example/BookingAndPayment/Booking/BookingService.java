@@ -1,10 +1,12 @@
 package com.example.BookingAndPayment.Booking;
 
+import com.example.BookingAndPayment.Annotations.DistributedLock;
 import com.example.BookingAndPayment.Booking.DTO.CreateBookingDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class BookingService {
@@ -14,7 +16,12 @@ public class BookingService {
     public BookingService(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
     }
-
+    @DistributedLock(
+            keyPrefix = "booking:create",
+            keyIdentifierExpression = "#dto.propertyId", // Lock per property to avoid double-booking
+            leaseTime = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
     public Booking createBooking(CreateBookingDTO dto) {
         if (!dto.isDateRangeValid()) {
             throw new IllegalArgumentException("Check-out date must be after check-in date");
@@ -76,6 +83,12 @@ public class BookingService {
         return booking.getNoOfNights();
     }
 
+    @DistributedLock(
+            keyPrefix = "booking:cancel",
+            keyIdentifierExpression = "#id", // Lock by booking ID
+            leaseTime = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
     public Booking cancelBooking(Long id) {
         Booking booking = getBookingById(id);
         if (booking.getStatus() == Booking.BookingStatus.CANCELLED) {
