@@ -17,6 +17,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(unique = true)
+    private String firebaseUid;
+
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -28,8 +31,26 @@ public class User {
     private String phoneNumber;
     private boolean isBanned;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable=false)
+    private Role role;
+
+    public Role getRole() {
+        return role;
+    }
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
 
+
+    public String getFirebaseUid() {
+        return firebaseUid;
+    }
+
+    public void setFirebaseUid(String firebaseUid) {
+        this.firebaseUid = firebaseUid;
+    }
 
     public Long getUserId() { return userId; }
     public void setUserId(Long id) { this.userId = id; }

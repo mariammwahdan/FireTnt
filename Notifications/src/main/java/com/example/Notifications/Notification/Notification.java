@@ -14,6 +14,7 @@ public class Notification {
     private Long id;
 
     private Long recipientId;
+    private String recipientEmail;
     private String message;
     private boolean isRead;
     private LocalDateTime timestamp;

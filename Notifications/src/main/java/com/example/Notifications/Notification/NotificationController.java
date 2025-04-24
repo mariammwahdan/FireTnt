@@ -28,8 +28,8 @@ public class NotificationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Notification create(@RequestBody Notification notification) {
-        return svc.create(notification);
+    public Notification create(@RequestBody CreateNotificationDTO dto) {
+        return svc.create(dto);
     }
 
     @PutMapping("/{id}/read")
@@ -37,10 +37,10 @@ public class NotificationController {
         return svc.markAsRead(id);
     }
 
-    @PutMapping("/{id}/send")
-    public boolean sendMail(@PathVariable Long id) {
-        return svc.sendMail(id);
-    }
+//    @PutMapping("/{id}/send")
+//    public boolean sendMail(@PathVariable Long id) {
+//        return svc.sendMail(id);
+//    }
 
     @PutMapping("/{id}/resend")
     public Notification resendMail(@PathVariable Long id) {
