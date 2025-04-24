@@ -9,5 +9,8 @@ public class CreateNotificationDTO {
     private Long recipientId;
 
     @NotNull
+    private String recipientEmail;
+
+    @NotNull
     private String message;
 }
