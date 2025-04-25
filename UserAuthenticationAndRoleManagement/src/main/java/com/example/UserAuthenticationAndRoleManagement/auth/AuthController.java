@@ -10,6 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.WebUtils;
@@ -62,7 +65,7 @@ import java.util.Map;
 //}
 
 
-@RestController
+@Controller
 @RequestMapping("/api/auth")
 public class AuthController {
     private final FirebaseAuthenticationService authSvc;
@@ -95,23 +98,54 @@ public class AuthController {
 //        return authSvc.loginWithEmail(req);
 //    }
 
-    @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest req,
-                               HttpServletResponse res) {
-        // 1. authenticate and get idToken+refreshToken
-        LoginResponse login = authSvc.loginWithEmail(req);
-
-        // 2. create session cookie (5 days)
-        String session = authSvc.createSessionCookie(login.getIdToken());
-        setCookie(res, "SESSION", session, 5 * 24 * 3600);
-
-        // 3. store refresh token (30 days)
-        setCookie(res, "REFRESH_TOKEN", login.getRefreshToken(),
-                30 * 24 * 3600);
-
-        return login;
+//    @PostMapping("/login")
+//    public LoginResponse login(@RequestBody LoginRequest req,
+//                               HttpServletResponse res) {
+//        // 1. authenticate and get idToken+refreshToken
+//        LoginResponse login = authSvc.loginWithEmail(req);
+//
+//        // 2. create session cookie (5 days)
+//        String session = authSvc.createSessionCookie(login.getIdToken());
+//        setCookie(res, "SESSION", session, 5 * 24 * 3600);
+//
+//        // 3. store refresh token (30 days)
+//        setCookie(res, "REFRESH_TOKEN", login.getRefreshToken(),
+//                30 * 24 * 3600);
+//
+//        return login;
+//    }
+@PostMapping("/login")
+public String handleLogin(
+        @ModelAttribute("loginRequest") LoginRequest request,
+        BindingResult result,
+        HttpServletResponse response,
+        Model model
+) {
+    if (result.hasErrors()) {
+        return "login";
     }
 
+    try {
+        LoginResponse login = authSvc.loginWithEmail(request);
+
+        String session = authSvc.createSessionCookie(login.getIdToken());
+
+        ResponseCookie sessionCookie = ResponseCookie.from("SESSION", session)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(5))
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
+
+        return "redirect:/api/users/dashboard"; // 🧭 customize where they land after login
+
+    } catch (ResponseStatusException e) {
+        model.addAttribute("error", "Invalid email or password.");
+        return "login";
+    }
+}
     @PostMapping("/refresh")
     public void refresh(HttpServletRequest req,
                         HttpServletResponse res) throws IOException {
@@ -136,18 +170,25 @@ public class AuthController {
 //    }
 
     @PostMapping("/logout")
-    public void logout(HttpServletResponse res) {
-        // clear both cookies
+    public void logout(HttpServletRequest req, HttpServletResponse res) {
+        String sessionCookie = getCookie(req, "SESSION");
+        if (sessionCookie != null) {
+            authSvc.clearSession(sessionCookie); // ✅ revoke session at Firebase
+        }
         setCookie(res, "SESSION", "", 0);
         setCookie(res, "REFRESH_TOKEN", "", 0);
     }
     // existing login returns idToken+refresh, or you can skip if you go pure session
     @PostMapping("/sessionLogin")
-    public void sessionLogin(
+    public LoginResponse sessionLogin(
             @RequestBody Map<String,String> body,
             HttpServletResponse response
     ) {
         String idToken = body.get("idToken");
+        String refreshToken = body.get("refreshToken"); // include this if needed
+
+        LoginResponse login = authSvc.loginWithToken(idToken); // returns user info, token, refresh
+
         String sessionCookie = authSvc.createSessionCookie(idToken);
 
         ResponseCookie cookie = ResponseCookie.from("SESSION", sessionCookie)
@@ -157,8 +198,17 @@ public class AuthController {
                 .maxAge(Duration.ofDays(5))
                 .sameSite("Strict")
                 .build();
-
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        ResponseCookie refresh = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(30))
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, refresh.toString());
+
+        return login;
     }
 
     @PostMapping("/sessionLogout")
