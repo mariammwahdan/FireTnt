@@ -6,15 +6,12 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/booking")
 public class BookingController {
-    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
     private final BookingService bookingService;
 
     @Autowired
@@ -25,17 +22,7 @@ public class BookingController {
     @PostMapping
     @RateLimit(limit = 3, duration = 60, keyPrefix = "createBooking")
     public ResponseEntity<Booking> createBooking(@RequestBody @Valid CreateBookingDTO dto) {
-        try {
-            logger.info("Creating booking for Guest ID: {}", dto.getGuestId());
-            Booking booking = bookingService.createBooking(dto);
-            return ResponseEntity.ok(booking);
-        } catch (IllegalArgumentException e) {
-            logger.error("Error creating booking: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(null); // Handle bad request error
-        } catch (Exception e) {
-            logger.error("Unexpected error: {}", e.getMessage());
-            return ResponseEntity.status(500).body(null); // Internal server error
-        }
+        return ResponseEntity.ok(bookingService.createBooking(dto));
     }
 
     @GetMapping

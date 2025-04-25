@@ -44,4 +44,3 @@ public class UpdatePaymentDTO {
         return status != null && (status == Payment.PaymentStatus.PENDING || status == Payment.PaymentStatus.FAILED);
     }
 }
-
