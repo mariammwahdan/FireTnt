@@ -55,13 +55,21 @@ public class PropertyController {
 //    }
 
     @GetMapping("/host/{hostId}")
-    public ResponseEntity<List<Property>> getPropertiesByHostId(@PathVariable Long hostId) {
+    @ResponseBody
+    public List<CreatePropertyDTO> getPropertiesByHostId(@PathVariable Long hostId) {
         List<Property> properties = propertyService.getPropertiesByHostId(hostId);
-        if (properties != null) {
-            return new ResponseEntity<>(properties,HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return properties.stream()
+                .map(p -> new CreatePropertyDTO(
+                        p.getPropertyId(),
+                        p.getTitle(),
+                        p.getDescription(),
+                        p.getPricePerNight(),
+                        p.isBooked(),
+                        p.getHostId()
+                ))
+                .toList();
     }
+
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Integer id, Model model) {
         Property property = propertyService.getPropertyById(id);
@@ -89,7 +97,7 @@ public class PropertyController {
         }
 
         Property updated = propertyService.updateProperty(id, dto);
-        Integer pID=updated.getPropertyId();
+        long pID=updated.getPropertyId();
         if (updated != null) {
             redirectAttributes.addFlashAttribute("successMessage", "Property updated successfully.");
         } else {

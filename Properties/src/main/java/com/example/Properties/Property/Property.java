@@ -6,7 +6,7 @@ public class Property {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer propertyId;
+    private long propertyId;
 
     private String title;
     private String description;
@@ -16,7 +16,7 @@ public class Property {
     private Long hostId; // Foreign key reference to User Microservice
 
 
-    public Integer getPropertyId() {
+    public long getPropertyId() {
         return propertyId;
     }
 
