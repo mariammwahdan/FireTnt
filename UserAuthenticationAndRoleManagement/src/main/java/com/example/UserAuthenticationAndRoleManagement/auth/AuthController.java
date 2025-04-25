@@ -1,5 +1,4 @@
 package com.example.UserAuthenticationAndRoleManagement.auth;
-
 import com.example.UserAuthenticationAndRoleManagement.auth.Dto.LoginRequest;
 import com.example.UserAuthenticationAndRoleManagement.auth.Dto.LoginResponse;
 import com.example.UserAuthenticationAndRoleManagement.User.User;
@@ -16,54 +15,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.WebUtils;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-
-//@RestController
-//@RequestMapping("/api/auth")
-//public class AuthController {
-//    private final FirebaseAuthenticationService authSvc;
-//
-//    public AuthController(FirebaseAuthenticationService authSvc) {
-//        this.authSvc = authSvc;
-//    }
-//
-//    @PostMapping("/login")
-//    public LoginResponse login(@RequestBody LoginRequest req) {
-//        User u = authSvc.loginWithToken(req.getIdToken());
-//        return new LoginResponse(u.getUserId(), u.getEmail());
-//    }
-//
-//    @PostMapping("/logout")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void logout(@RequestBody LoginRequest req) {
-//        authSvc.logout(req.getIdToken());
-//    }
-//}
-
-//@RestController
-//@RequestMapping("/api/auth")
-//public class AuthController {
-//    private final FirebaseAuthenticationService authSvc;
-//
-//    public AuthController(FirebaseAuthenticationService authSvc) {
-//        this.authSvc = authSvc;
-//    }
-//
-//    @PostMapping("/login")
-//    public LoginResponse login(@RequestBody LoginRequest req) {
-//        return authSvc.login(req);
-//    }
-//
-//    @PostMapping("/logout")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void logout(@RequestBody LoginRequest req) {
-//        authSvc.logout(req.getIdToken());
-//    }
-//}
-
 
 @Controller
 @RequestMapping("/api/auth")
@@ -168,16 +122,6 @@ public String handleLogin(
 //        String idToken = body.get("idToken");
 //        authSvc.logout(idToken);
 //    }
-
-    @PostMapping("/logout")
-    public void logout(HttpServletRequest req, HttpServletResponse res) {
-        String sessionCookie = getCookie(req, "SESSION");
-        if (sessionCookie != null) {
-            authSvc.clearSession(sessionCookie); // ✅ revoke session at Firebase
-        }
-        setCookie(res, "SESSION", "", 0);
-        setCookie(res, "REFRESH_TOKEN", "", 0);
-    }
     // existing login returns idToken+refresh, or you can skip if you go pure session
     @PostMapping("/sessionLogin")
     public LoginResponse sessionLogin(

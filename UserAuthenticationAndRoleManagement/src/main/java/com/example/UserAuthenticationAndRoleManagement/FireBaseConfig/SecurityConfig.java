@@ -46,14 +46,20 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(sessionCookieFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/signup", "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/signup", "/api/auth/login").permitAll()
+                        .requestMatchers("/signup", "/login", "/api/auth/login").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // optional, defaults to /logout
+                        .logoutSuccessUrl("/login?logout") // where to go after logout
+                        .invalidateHttpSession(true)
+                        .deleteCookies("SESSION", "REFRESH_TOKEN") // delete custom cookies if needed
                 );
 
         return http.build();
     }
+
 
 //    @Bean
 //    public Filter sessionCookieFilter() {

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
     <title>StayEasy | Vacation Rentals</title>
    </head>
@@ -9,15 +10,7 @@
 <!-- Include navbar fragment -->
 <div th:replace="fragments/navbar :: navbar(role=${role})"></div>
 
-<div class="container text-center mt-5">
-    <h1 class="display-4">Welcome to StayEasy</h1>
-    <p class="lead">Discover and list amazing vacation homes with ease.</p>
 
-<!--    <div class="mt-4">-->
-<!--        <a th:href="@{/properties}" class="btn btn-primary btn-lg me-3">Explore Listings</a>-->
-<!--        <a th:href="@{/signup}" class="btn btn-outline-secondary btn-lg">Become a Host</a>-->
-<!--    </div>-->
-</div>
 
 </body>
 </html>
