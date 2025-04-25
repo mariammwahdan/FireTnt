@@ -5,15 +5,16 @@ package com.example.UserAuthenticationAndRoleManagement.User;
 
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.CreateUserDTO;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.NotificationDto;
-import com.example.UserAuthenticationAndRoleManagement.User.DTO.UpdateUserDTO;
-import org.springframework.data.domain.Sort;
+import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService svc;
@@ -54,13 +55,26 @@ public class UserController {
         return svc.getNotifications(id);
     }
 
+
     @GetMapping("/dashboard")
-    public String dashboard(Principal principal) {
-        User u = svc.findByEmail(principal.getName());
-        switch(u.getRole()) {
-            case ADMIN: return "redirect:/admin/home";
-            case HOST:  return "redirect:/host/home";
-            default:    return "redirect:/guest/home";
+    public String dashboard(Authentication authentication, Model model) {
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof FirebasePrincipal firebasePrincipal) {
+            String email = firebasePrincipal.getEmail();
+            User user = svc.findByEmail(email);
+            String roleName =user.getRole().name();
+//            switch (user.getRole()) {
+//                case ADMIN: return "home";
+//                case HOST: return "redirect:/host/home";
+//                default: return "redirect:/guest/home";
+//            }
+            model.addAttribute("role", roleName);
+            return "home";
         }
+
+        throw new IllegalStateException("Invalid principal type");
     }
+
+
 }

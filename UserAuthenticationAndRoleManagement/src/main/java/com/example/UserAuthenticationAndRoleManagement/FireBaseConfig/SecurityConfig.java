@@ -1,6 +1,7 @@
 package com.example.UserAuthenticationAndRoleManagement.FireBaseConfig;
 
 import com.example.UserAuthenticationAndRoleManagement.auth.FirebaseAuthenticationService;
+import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.servlet.Filter;
@@ -42,26 +43,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterBefore(
-                        sessionCookieFilter(),
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(sessionCookieFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT , "/api/users/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE , "/api/users/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/signup", "/login", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // optional, defaults to /logout
+                        .logoutSuccessUrl("/login?logout") // where to go after logout
+                        .invalidateHttpSession(true)
+                        .deleteCookies("SESSION", "REFRESH_TOKEN") // delete custom cookies if needed
                 );
-
 
         return http.build();
     }
+
 
 //    @Bean
 //    public Filter sessionCookieFilter() {
@@ -99,10 +98,11 @@ public class SecurityConfig {
                             new SimpleGrantedAuthority("ROLE_" + role)
                     );
                     Authentication auth = new UsernamePasswordAuthenticationToken(
-                            token.getUid(),
+                            new FirebasePrincipal(token.getUid(), token.getEmail()),
                             null,
                             auths
                     );
+
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
                 chain.doFilter(req, res);

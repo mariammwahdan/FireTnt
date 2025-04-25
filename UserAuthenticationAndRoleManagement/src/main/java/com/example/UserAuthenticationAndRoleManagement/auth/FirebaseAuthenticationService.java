@@ -97,6 +97,32 @@ public class FirebaseAuthenticationService {
         this.firebaseAuth = firebaseAuth;
     }
 
+    public LoginResponse loginWithToken(String idToken) {
+        try {
+            FirebaseToken decoded = firebaseAuth.verifyIdToken(idToken);
+            String firebaseUid = decoded.getUid();
+
+            User u = userRepo.findByFirebaseUid(firebaseUid)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "User not found"
+                    ));
+
+            return new LoginResponse(
+                    u.getUserId(),
+                    u.getEmail(),
+                    idToken,     // optional: echo back
+                    null         // no refreshToken, unless passed in
+            );
+
+        } catch (FirebaseAuthException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid Firebase token",
+                    e
+            );
+        }
+    }
+
     @Transactional
     public LoginResponse loginWithEmail(LoginRequest req) {
         FirebaseAuthResponse resp = webClient.post()

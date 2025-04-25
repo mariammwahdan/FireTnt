@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Listings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-10">
+<h2 class="text-2xl font-bold mb-6">My Property Listings</h2>
+
+<div th:if="${properties.size() == 0}" class="text-gray-600">You have no properties yet.</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div th:each="prop : ${properties}" class="p-4 shadow border rounded">
+        <h3 class="text-lg font-semibold" th:text="${prop.title}">Property Title</h3>
+        <p th:text="${prop.description}"></p>
+        <p class="text-sm text-gray-500">Price: $<span th:text="${prop.pricePerNight}"></span></p>
+    </div>
+</div>
+</body>
+</html>
