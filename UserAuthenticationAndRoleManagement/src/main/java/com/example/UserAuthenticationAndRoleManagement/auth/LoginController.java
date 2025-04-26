@@ -56,7 +56,7 @@ public class LoginController {
 //                    .build();
 //            response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
 //
-//            return "redirect:api/users/dashboard"; // 🧭 customize where they land after login
+//            return "redirect:api/users/dashboard";
 //
 //        } catch (ResponseStatusException e) {
 //            model.addAttribute("error", "Invalid email or password.");

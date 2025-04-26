@@ -46,7 +46,8 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(sessionCookieFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup", "/login", "/api/auth/login").permitAll()
+                        .requestMatchers("/signup", "/login", "/api/auth/login", "/api/users","/login/json" , "send-welcome-message" ).permitAll()
+                        .requestMatchers(HttpMethod.GET , "/api/admin/users/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()

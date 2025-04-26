@@ -170,7 +170,6 @@ public class UserService {
                         ));
     }
 
-    @CacheEvict(value = "users", allEntries = true)
     @Transactional
     public User createUser(CreateUserDTO dto) {
 
@@ -182,18 +181,15 @@ public class UserService {
         }
 
         try {
-            // 2) check Firebase
+            // Check Firebase
             auth.getUserByEmail(dto.getEmail());
-            // if no exception thrown, user exists in Firebase
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Email " + dto.getEmail() + " is already registered in Firebase"
             );
 
         } catch (FirebaseAuthException e) {
-            // e.getAuthErrorCode()==USER_NOT_FOUND means it’s safe to create
             if (!"USER_NOT_FOUND".equals(e.getAuthErrorCode().name())) {
-                // some other Firebase error
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         "Failed to verify email in Firebase",
@@ -203,13 +199,13 @@ public class UserService {
         }
 
         try {
-
+            // Create Firebase user
             var req = new UserRecord.CreateRequest()
                     .setEmail(dto.getEmail())
                     .setPassword(dto.getPassword());
             var rec = auth.createUser(req);
 
-
+            // Create local user
             var u = new User();
             u.setFirebaseUid(rec.getUid());
             u.setEmail(rec.getEmail());
@@ -217,11 +213,10 @@ public class UserService {
             u.setLastName(dto.getLastName());
             u.setPhoneNumber(dto.getPhoneNumber());
             u.setPassword(dto.getPassword());
-            u.setRole(dto.getRole());
+            u.setRole(dto.getRole());  // Set the role here
             return userRepository.save(u);
 
         } catch (FirebaseAuthException e) {
-
             if ("EMAIL_ALREADY_EXISTS".equals(e.getAuthErrorCode().name())) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -236,6 +231,7 @@ public class UserService {
             );
         }
     }
+
 
 //    @CacheEvict(value = "users", allEntries = true)
 //    @Transactional

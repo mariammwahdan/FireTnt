@@ -1,5 +1,10 @@
 package com.example.UserAuthenticationAndRoleManagement.auth;
 
+import com.example.Notifications.Notification.DTO.CreateNotificationDTO;
+
+import com.example.Notifications.Notification.Notification;
+import com.example.Notifications.Notification.NotificationService;
+import com.example.UserAuthenticationAndRoleManagement.User.Role;
 import com.example.UserAuthenticationAndRoleManagement.User.User;
 import com.example.UserAuthenticationAndRoleManagement.User.UserRepository;
 import com.example.UserAuthenticationAndRoleManagement.auth.Dto.FirebaseAuthResponse;
@@ -15,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
@@ -84,17 +90,21 @@ public class FirebaseAuthenticationService {
     private final WebClient webClient;
     private final String apiKey;
     private final FirebaseAuth firebaseAuth;
+    private final RestTemplate restTemplate;
+   private final String notificationServiceUrl = "http://localhost:8083/api/notifications/send-welcome-message"; // Replace with your Notification service's URL
 
     public FirebaseAuthenticationService(
             UserRepository userRepo,
             WebClient firebaseAuthWebClient,
             @Value("${firebase.api-key}") String apiKey,
-            FirebaseAuth firebaseAuth
+            FirebaseAuth firebaseAuth, RestTemplate restTemplate
     ) {
         this.userRepo     = userRepo;
         this.webClient    = firebaseAuthWebClient;
         this.apiKey       = apiKey;
         this.firebaseAuth = firebaseAuth;
+        this.restTemplate = restTemplate;
+
     }
 
     public LoginResponse loginWithToken(String idToken) {
@@ -123,8 +133,322 @@ public class FirebaseAuthenticationService {
         }
     }
 
+//    @Transactional
+//    public LoginResponse loginWithEmail(LoginRequest req) {
+//        FirebaseAuthResponse resp = webClient.post()
+//                .uri(uri -> uri
+//                        .path("/accounts:signInWithPassword")
+//                        .queryParam("key", apiKey)
+//                        .build())
+//                .bodyValue(Map.of(
+//                        "email", req.getEmail(),
+//                        "password", req.getPassword(),
+//                        "returnSecureToken", true
+//                ))
+//                .retrieve()
+//                .onStatus(status -> status.value() == 400,
+//                        clientResp -> clientResp
+//                                .bodyToMono(ObjectNode.class)
+//                                .flatMap(body -> {
+//                                    String msg = body
+//                                            .path("error")
+//                                            .path("message")
+//                                            .asText("UNKNOWN");
+//                                    return Mono.error(
+//                                            new ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
+//                                    );
+//                                })
+//                )
+//                .bodyToMono(FirebaseAuthResponse.class)
+//                .block();
+//
+//        String uid = resp.getLocalId();
+//        User u = userRepo.findByFirebaseUid(uid)
+//                .orElseGet(() -> {
+//                    User n = new User();
+//                    n.setFirebaseUid(uid);
+//                    n.setEmail(resp.getEmail());
+//                    return userRepo.save(n);
+//                });
+//
+//        return new LoginResponse(
+//                u.getUserId(),
+//                u.getEmail(),
+//                resp.getIdToken(),
+//                resp.getRefreshToken()
+//        );
+//    }
+
+
+//    @Transactional
+//    public LoginResponse loginWithEmail(LoginRequest req) {
+//        // Step 1: Make the API request to Firebase for authentication
+//        FirebaseAuthResponse resp = webClient.post()
+//                .uri(uri -> uri
+//                        .path("/accounts:signInWithPassword")
+//                        .queryParam("key", apiKey)
+//                        .build())
+//                .bodyValue(Map.of(
+//                        "email", req.getEmail(),
+//                        "password", req.getPassword(),
+//                        "returnSecureToken", true
+//                ))
+//                .retrieve()
+//                .onStatus(status -> status.value() == 400,
+//                        clientResp -> clientResp
+//                                .bodyToMono(ObjectNode.class)
+//                                .flatMap(body -> {
+//                                    String msg = body
+//                                            .path("error")
+//                                            .path("message")
+//                                            .asText("UNKNOWN");
+//                                    return Mono.error(
+//                                            new ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
+//                                    );
+//                                })
+//                )
+//                .bodyToMono(FirebaseAuthResponse.class)
+//                .block();
+//
+//        // Step 2: Extract Firebase UID from the response and check if user exists
+//        String uid = resp.getLocalId();
+//        User u = userRepo.findByFirebaseUid(uid)
+//                .orElseGet(() -> {
+//                    // Step 3: Create new user if not found
+//                    User n = new User();
+//                    n.setFirebaseUid(uid);
+//                    n.setEmail(resp.getEmail());
+//                    n.setPassword(""); // password is empty for Firebase users
+//                    n.setRole(Role.GUEST);  // Set the role to GUEST by default
+//                    return userRepo.save(n);
+//                });
+//
+//        // Step 4: Return LoginResponse with the user's details and tokens
+//        return new LoginResponse(
+//                u.getUserId(),
+//                u.getEmail(),
+//                resp.getIdToken(),
+//                resp.getRefreshToken()
+//        );
+//    }
+
+//    @Transactional
+//    public LoginResponse loginWithEmail(LoginRequest req) {
+//        if (req.getEmail() == null || req.getEmail().isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be empty.");
+//        }
+//
+//        if (req.getPassword() == null || req.getPassword().isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty.");
+//        }
+//
+//        // Step 1: Make the API request to Firebase for authentication
+//        FirebaseAuthResponse resp = webClient.post()
+//                .uri(uri -> uri
+//                        .path("/accounts:signInWithPassword")
+//                        .queryParam("key", apiKey)
+//                        .build())
+//                .bodyValue(Map.of(
+//                        "email", req.getEmail(),
+//                        "password", req.getPassword(),
+//                        "returnSecureToken", true
+//                ))
+//                .retrieve()
+//                .onStatus(status -> status.value() == 400,
+//                        clientResp -> clientResp
+//                                .bodyToMono(ObjectNode.class)
+//                                .flatMap(body -> {
+//                                    String msg = body
+//                                            .path("error")
+//                                            .path("message")
+//                                            .asText("UNKNOWN");
+//                                    return Mono.error(
+//                                            new ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
+//                                    );
+//                                })
+//                )
+//                .bodyToMono(FirebaseAuthResponse.class)
+//                .block();
+//
+//        // Step 2: Extract Firebase UID from the response and check if user exists
+//        String uid = resp.getLocalId();
+//        User u = userRepo.findByFirebaseUid(uid)
+//                .orElseGet(() -> {
+//                    // Step 3: Create new user if not found
+//                    User n = new User();
+//                    n.setFirebaseUid(uid);
+//                    n.setEmail(resp.getEmail());
+//                    n.setPassword(""); // password is empty for Firebase users
+//                    n.setRole(Role.GUEST);  // Set the role to GUEST by default
+//                    return userRepo.save(n);
+//                });
+//
+//        // Step 4: Return LoginResponse with the user's details and tokens
+//        return new LoginResponse(
+//                u.getUserId(),
+//                u.getEmail(),
+//                resp.getIdToken(),
+//                resp.getRefreshToken()
+//        );
+//    }
+
+//    @Transactional
+//    public LoginResponse loginWithEmail(LoginRequest req) {
+//        // Step 1: Validate the input email and password
+//        validateLoginRequest(req);
+//
+//        // Step 2: Make the API request to Firebase for authentication
+//        FirebaseAuthResponse resp = authenticateWithFirebase(req.getEmail(), req.getPassword());
+//
+//        // Step 3: Extract Firebase UID from the response and check if the user exists
+//        String uid = resp.getLocalId();
+//        User u = getUserByFirebaseUid(uid);
+//
+//        // Step 4: Return LoginResponse with the user's details and tokens
+//        return createLoginResponse(u, resp);
+//    }
+//
+//    private void validateLoginRequest(LoginRequest req) {
+//        if (req.getEmail() == null || req.getEmail().isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be empty.");
+//        }
+//
+//        if (req.getPassword() == null || req.getPassword().isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty.");
+//        }
+//    }
+//
+//    private FirebaseAuthResponse authenticateWithFirebase(String email, String password) {
+//        try {
+//            return webClient.post()
+//                    .uri(uri -> uri
+//                            .path("/accounts:signInWithPassword")
+//                            .queryParam("key", apiKey)
+//                            .build())
+//                    .bodyValue(Map.of(
+//                            "email", email,
+//                            "password", password,
+//                            "returnSecureToken", true
+//                    ))
+//                    .retrieve()
+//                    .onStatus(status -> status.value() == 400,
+//                            clientResp -> clientResp
+//                                    .bodyToMono(ObjectNode.class)
+//                                    .flatMap(body -> {
+//                                        String msg = body
+//                                                .path("error")
+//                                                .path("message")
+//                                                .asText("UNKNOWN");
+//                                        return Mono.error(
+//                                                new ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
+//                                        );
+//                                    })
+//                    )
+//                    .bodyToMono(FirebaseAuthResponse.class)
+//                    .block();
+//        } catch (Exception e) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Failed to authenticate with Firebase", e);
+//        }
+//    }
+//
+//    private User getUserByFirebaseUid(String uid) {
+//        return userRepo.findByFirebaseUid(uid)
+//                .orElseGet(() -> {
+//                    // Create a new user if not found
+//                    User newUser = new User();
+//                    newUser.setFirebaseUid(uid);
+//                    newUser.setRole(Role.GUEST);  // Default to GUEST role
+//                    return userRepo.save(newUser);
+//                });
+//    }
+//
+//    private LoginResponse createLoginResponse(User u, FirebaseAuthResponse resp) {
+//        return new LoginResponse(
+//                u.getUserId(),
+//                u.getEmail(),
+//                resp.getIdToken(),
+//                resp.getRefreshToken()
+//        );
+//    }
+
+//    @Transactional
+//    public LoginResponse loginWithEmail(LoginRequest req) {
+//        if (req.getEmail() == null || req.getEmail().isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be empty.");
+//        }
+//
+//        if (req.getPassword() == null || req.getPassword().isEmpty()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty.");
+//        }
+//
+//        // Step 1: Make the API request to Firebase for authentication
+//        FirebaseAuthResponse resp = webClient.post()
+//                .uri(uri -> uri
+//                        .path("/accounts:signInWithPassword")
+//                        .queryParam("key", apiKey)
+//                        .build())
+//                .bodyValue(Map.of(
+//                        "email", req.getEmail(),
+//                        "password", req.getPassword(),
+//                        "returnSecureToken", true
+//                ))
+//                .retrieve()
+//                .onStatus(status -> status.value() == 400,
+//                        clientResp -> clientResp
+//                                .bodyToMono(ObjectNode.class)
+//                                .flatMap(body -> {
+//                                    String msg = body
+//                                            .path("error")
+//                                            .path("message")
+//                                            .asText("UNKNOWN");
+//                                    return Mono.error(
+//                                            new ResponseStatusException(HttpStatus.UNAUTHORIZED, msg)
+//                                    );
+//                                })
+//                )
+//                .bodyToMono(FirebaseAuthResponse.class)
+//                .block();
+//
+//        // Step 2: Extract Firebase UID from the response and check if user exists
+//        String uid = resp.getLocalId();
+//        User u = userRepo.findByFirebaseUid(uid)
+//                .orElseGet(() -> {
+//                    // Step 3: Create new user if not found
+//                    User n = new User();
+//                    n.setFirebaseUid(uid);
+//                    n.setEmail(resp.getEmail());
+//                    n.setPassword(""); // password is empty for Firebase users
+//                    n.setRole(Role.GUEST);  // Set the role to GUEST by default
+//                    // Create a welcome notification for the Guest user
+//                    notificationService.create(new CreateNotificationDTO(
+//                            n.getUserId(),
+//                            n.getEmail(),
+//                            "Welcome to FireTnt, " + n.getFirstName() + "!"
+//                    ));
+//                    return userRepo.save(n);
+//                });
+//
+//        // Step 4: Return LoginResponse with the user's details and tokens
+//        return new LoginResponse(
+//                u.getUserId(),
+//                u.getEmail(),
+//                resp.getIdToken(),
+//                resp.getRefreshToken()
+//        );
+//    }
+
+
     @Transactional
     public LoginResponse loginWithEmail(LoginRequest req) {
+        if (req.getEmail() == null || req.getEmail().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be empty.");
+        }
+
+        if (req.getPassword() == null || req.getPassword().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty.");
+        }
+
+        // Step 1: Make the API request to Firebase for authentication
         FirebaseAuthResponse resp = webClient.post()
                 .uri(uri -> uri
                         .path("/accounts:signInWithPassword")
@@ -152,15 +476,31 @@ public class FirebaseAuthenticationService {
                 .bodyToMono(FirebaseAuthResponse.class)
                 .block();
 
+        // Step 2: Extract Firebase UID from the response and check if user exists
         String uid = resp.getLocalId();
         User u = userRepo.findByFirebaseUid(uid)
                 .orElseGet(() -> {
+                    // Step 3: Create new user if not found
                     User n = new User();
                     n.setFirebaseUid(uid);
                     n.setEmail(resp.getEmail());
+                    n.setPassword(""); // password is empty for Firebase users
+                    n.setRole(Role.GUEST);  // Set the role to GUEST by default
+
+                    // Step 4: Send the welcome notification via Notifications service
+                    CreateNotificationDTO notificationDTO = new CreateNotificationDTO(
+                            n.getUserId(),
+                            n.getEmail(),
+                            "Welcome to FireTnt, " + n.getFirstName() + "!"
+                    );
+
+                    // Send HTTP request to Notification service
+                    restTemplate.postForObject(notificationServiceUrl, notificationDTO, Notification.class);
+
                     return userRepo.save(n);
                 });
 
+        // Step 5: Return LoginResponse with the user's details and tokens
         return new LoginResponse(
                 u.getUserId(),
                 u.getEmail(),
@@ -168,6 +508,28 @@ public class FirebaseAuthenticationService {
                 resp.getRefreshToken()
         );
     }
+
+
+
+
+    //    private void sendWelcomeEmail(String recipientEmail, String message) {
+//        // Create a new notification DTO to send to the Notification service
+//        CreateNotificationDTO notificationDTO = new CreateNotificationDTO();
+//        notificationDTO.setRecipientEmail(recipientEmail);
+//        notificationDTO.setMessage(message);
+//
+//        // Send a POST request to the Notification service
+//        restTemplate.postForObject(notificationServiceUrl, notificationDTO, Notification.class);
+//    }
+//private void sendWelcomeEmail(User user) {
+//    // Create the request body for the Notification service
+//    Map<String, Object> notificationRequest = new HashMap<>();
+//    notificationRequest.put("recipientEmail", user.getEmail());
+//    notificationRequest.put("message", "Welcome " + user.getFirstName() + " " + user.getLastName() + ", you're successfully logged in!");
+//
+//    // Make a POST request to the Notification service to send the email
+//    restTemplate.postForObject(notificationServiceUrl, notificationRequest, String.class);
+//}
 
     @Transactional
     public void logout(String idToken) {

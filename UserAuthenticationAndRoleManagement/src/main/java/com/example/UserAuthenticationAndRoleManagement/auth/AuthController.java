@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +19,7 @@ import org.springframework.web.util.WebUtils;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
+
 
 @Controller
 @RequestMapping("/api/auth")
@@ -68,38 +70,136 @@ public class AuthController {
 //
 //        return login;
 //    }
-@PostMapping("/login")
-public String handleLogin(
-        @ModelAttribute("loginRequest") LoginRequest request,
-        BindingResult result,
-        HttpServletResponse response,
-        Model model
-) {
-    if (result.hasErrors()) {
-        return "login";
+
+//@PostMapping("/login")
+//public String handleLogin(
+//        @ModelAttribute("loginRequest") LoginRequest request,
+//        BindingResult result,
+//        HttpServletResponse response,
+//        Model model
+//) {
+//    if (result.hasErrors()) {
+//        return "login";
+//    }
+//
+//    try {
+//        LoginResponse login = authSvc.loginWithEmail(request);
+//
+//        String session = authSvc.createSessionCookie(login.getIdToken());
+//
+//        ResponseCookie sessionCookie = ResponseCookie.from("SESSION", session)
+//                .httpOnly(true)
+//                .secure(true)
+//                .path("/")
+//                .maxAge(Duration.ofDays(5))
+//                .sameSite("Strict")
+//                .build();
+//        response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
+//
+//        return "redirect:/api/users/dashboard";
+//
+//    } catch (ResponseStatusException e) {
+//        model.addAttribute("error", "Invalid email or password.");
+//        return "login";
+//    }
+//}
+
+//    @PostMapping("/login")
+//    public ResponseEntity<?> handleLogin(
+//            @ModelAttribute("loginRequest") LoginRequest request, // For HTML form submission
+//            BindingResult result,
+//            HttpServletRequest requestHttp, // To check the accept header for response type
+//            HttpServletResponse response,
+//            Model model
+//    ) {
+//        // Check if the request expects HTML or JSON
+//        boolean isJsonRequest = requestHttp.getHeader("Accept") != null && requestHttp.getHeader("Accept").contains("application/json");
+//
+//        if (result.hasErrors()) {
+//            return isJsonRequest ? ResponseEntity.badRequest().body("Invalid input data.") : "login";
+//        }
+//
+//        try {
+//            LoginResponse login = authSvc.loginWithEmail(request);
+//
+//            // Create session cookie
+//            String session = authSvc.createSessionCookie(login.getIdToken());
+//            ResponseCookie sessionCookie = ResponseCookie.from("SESSION", session)
+//                    .httpOnly(true)
+//                    .secure(true)
+//                    .path("/")
+//                    .maxAge(Duration.ofDays(5))
+//                    .sameSite("Strict")
+//                    .build();
+//            response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
+//
+//            if (isJsonRequest) {
+//                // Return LoginResponse as JSON
+//                return ResponseEntity.ok(login);
+//            } else {
+//                // Return HTML view redirection for web users
+//                return "redirect:/api/users/dashboard";
+//            }
+//
+//        } catch (ResponseStatusException e) {
+//            if (isJsonRequest) {
+//                // Return JSON error message for API users
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email or password.");
+//            } else {
+//                model.addAttribute("error", "Invalid email or password.");
+//                return "login"; // Return the login view for web users
+//            }
+//        }
+//    }
+
+    @PostMapping("/login")
+    public String handleLogin(
+            @ModelAttribute("loginRequest") LoginRequest request,
+            BindingResult result,
+            HttpServletResponse response,
+            Model model
+    ) {
+        if (result.hasErrors()) {
+            return "login"; // HTML view for login form with error
+        }
+
+        try {
+            LoginResponse login = authSvc.loginWithEmail(request);
+
+            String session = authSvc.createSessionCookie(login.getIdToken());
+
+            ResponseCookie sessionCookie = ResponseCookie.from("SESSION", session)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(Duration.ofDays(5))
+                    .sameSite("Strict")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
+
+            return "redirect:/api/users/dashboard"; // Redirect after successful login
+
+        } catch (ResponseStatusException e) {
+            model.addAttribute("error", "Invalid email or password.");
+            return "login"; // Return the login page with error message
+        }
     }
 
-    try {
-        LoginResponse login = authSvc.loginWithEmail(request);
+    @PostMapping("/login/json")  // JSON response handler
+    @ResponseBody  // Returns JSON directly without rendering a view
+    public ResponseEntity<?> handleLoginJson(@RequestBody LoginRequest request) {
+        try {
+            LoginResponse login = authSvc.loginWithEmail(request);
+            return ResponseEntity.ok(login);  // Return LoginResponse as JSON
 
-        String session = authSvc.createSessionCookie(login.getIdToken());
-
-        ResponseCookie sessionCookie = ResponseCookie.from("SESSION", session)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(Duration.ofDays(5))
-                .sameSite("Strict")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
-
-        return "redirect:/api/users/dashboard"; // 🧭 customize where they land after login
-
-    } catch (ResponseStatusException e) {
-        model.addAttribute("error", "Invalid email or password.");
-        return "login";
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+        }
     }
-}
+
+
+
+
     @PostMapping("/refresh")
     public void refresh(HttpServletRequest req,
                         HttpServletResponse res) throws IOException {

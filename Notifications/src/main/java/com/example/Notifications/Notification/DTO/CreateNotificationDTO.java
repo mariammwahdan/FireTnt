@@ -13,4 +13,10 @@ public class CreateNotificationDTO {
 
     @NotNull
     private String message;
+
+    public CreateNotificationDTO(Long recipientId, String recipientEmail, String message) {
+        this.recipientId = recipientId;
+        this.recipientEmail = recipientEmail;
+        this.message = message;
+    }
 }
