@@ -2,6 +2,7 @@ package com.example.Properties.Property;
 
 import com.example.Properties.Property.DTO.CreatePropertyDTO;
 import com.example.Properties.Property.DTO.UpdatePropertyDTO;
+import com.example.Properties.Review;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -125,5 +126,12 @@ public class PropertyController {
     @GetMapping("/{id}/isBooked")
     public ResponseEntity<Boolean> isBooked(@PathVariable Integer id) {
         return ResponseEntity.ok(propertyService.isBooked(id));
+    }
+
+    @GetMapping("/reviews")
+    @ResponseBody
+    public ResponseEntity<List<Review>> getAllReviews() {
+        List<Review> reviews = propertyService.getAllReviewsFromReviewService();
+        return ResponseEntity.ok(reviews);
     }
 }

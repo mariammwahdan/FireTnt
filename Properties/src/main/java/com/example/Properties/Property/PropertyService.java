@@ -3,19 +3,20 @@ package com.example.Properties.Property;
 import com.example.Properties.Property.DTO.CreatePropertyDTO;
 import com.example.Properties.Property.DTO.UpdatePropertyDTO;
 import com.example.Properties.Redis.RedisClient;
+import com.example.Properties.Review;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.example.Properties.ReviewsClient;
 import java.time.Duration;
 import java.util.List;
 
 @Service
 public class PropertyService {
-
+    private ReviewsClient reviewClient; // You said you created ReviewClient already
     private static final Logger log = LoggerFactory.getLogger(PropertyService.class); // Add logger
     private final PropertyRepository propertyRepository;
     @Autowired
@@ -24,8 +25,10 @@ public class PropertyService {
     private ObjectMapper objectMapper; // Inject ObjectMapper
     private static final String ALL_PROPERTIES_CACHE_KEY = "properties:all";
     private static final Duration CACHE_TTL = Duration.ofMinutes(10); // Define cache TTL (e.g., 10 minutes)
-    public PropertyService(PropertyRepository propertyRepository) {
+    @Autowired
+    public PropertyService(PropertyRepository propertyRepository, ReviewsClient reviewClient) {
         this.propertyRepository = propertyRepository;
+        this.reviewClient = reviewClient;
     }
 
     public Property createProperty(CreatePropertyDTO dto) {
@@ -166,5 +169,9 @@ public class PropertyService {
     public boolean isBooked(Integer id) {
         Property property = getPropertyById(id);
         return property.isBooked();
+    }
+
+    public List<Review> getAllReviewsFromReviewService() {
+        return reviewClient.getAllReviews();
     }
 }
