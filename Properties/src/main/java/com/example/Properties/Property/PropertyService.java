@@ -1,21 +1,22 @@
 package com.example.Properties.Property;
 
-import com.example.Properties.Property.DTO.CreatePropertyDTO;
-import com.example.Properties.Property.DTO.UpdatePropertyDTO;
+import com.example.Properties.Property.DTO.*;
+import com.example.Properties.Property.Model.Property;
 import com.example.Properties.Redis.RedisClient;
+import com.example.Properties.Property.Model.Review;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.example.Properties.ReviewsClient;
 import java.time.Duration;
 import java.util.List;
 
 @Service
 public class PropertyService {
-
+    private ReviewsClient reviewClient; // You said you created ReviewClient already
     private static final Logger log = LoggerFactory.getLogger(PropertyService.class); // Add logger
     private final PropertyRepository propertyRepository;
     @Autowired
@@ -24,8 +25,10 @@ public class PropertyService {
     private ObjectMapper objectMapper; // Inject ObjectMapper
     private static final String ALL_PROPERTIES_CACHE_KEY = "properties:all";
     private static final Duration CACHE_TTL = Duration.ofMinutes(10); // Define cache TTL (e.g., 10 minutes)
-    public PropertyService(PropertyRepository propertyRepository) {
+    @Autowired
+    public PropertyService(PropertyRepository propertyRepository, ReviewsClient reviewClient) {
         this.propertyRepository = propertyRepository;
+        this.reviewClient = reviewClient;
     }
 
     public Property createProperty(CreatePropertyDTO dto) {
@@ -167,4 +170,43 @@ public class PropertyService {
         Property property = getPropertyById(id);
         return property.isBooked();
     }
+
+    // ###################################################
+
+
+
+    // Endpoints that call the Review service
+    public List<Review> getAllReviewsFromReviewService() {
+        return reviewClient.getAllReviews();
+    }
+
+    public List<Review> getReviewsForProperty(Integer propertyId) {
+        return reviewClient.getReviewsByPropertyId(propertyId);
+    }
+
+    // Create review for property
+    public Review createReviewForProperty(Integer propertyId, CreateReviewWithPropertyIdDTO createReviewDTO) {
+        reviewClient.createReview(propertyId, createReviewDTO);
+        return reviewClient.getReviewsByPropertyId(propertyId).get(0); // Assuming the latest review is the one created
+    }
+
+    // Update review text for property by reviewId
+    public Review updateReviewTextForProperty(Integer propertyId, long reviewId, UpdateReviewTextDTO dto) {
+        reviewClient.updateReviewTextForProperty(propertyId, reviewId, dto);
+        return reviewClient.getReviewsByPropertyId(propertyId).stream()
+                .filter(review -> review.getId() == reviewId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+    }
+
+    // Update review rating for property by reviewId
+    public Review updateReviewRatingForProperty(Integer propertyId, long reviewId, UpdateReviewRatingDTO dto) {
+        reviewClient.updateReviewRatingForProperty(propertyId, reviewId, dto);
+        return reviewClient.getReviewsByPropertyId(propertyId).stream()
+                .filter(review -> review.getId() == reviewId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+    }
+
+
 }

@@ -1,6 +1,7 @@
 package com.example.Reviews.Review;
 
 import com.example.Reviews.Review.DTO.CreateReviewDTO;
+import com.example.Reviews.Review.DTO.CreateReviewWithPropertyIdDTO;
 import com.example.Reviews.Review.DTO.UpdateReviewRatingDTO;
 import com.example.Reviews.Review.DTO.UpdateReviewTextDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,12 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
+    public Review createReview(Integer propertyId, CreateReviewWithPropertyIdDTO dto) {
+        Review review = new Review(dto.getGuestId(), propertyId, dto.getReviewText(), dto.getRating());
+        return reviewRepository.save(review);
+    }
+
+
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
@@ -40,6 +47,33 @@ public class ReviewService {
         review.setRating(dto.getRating());
         return reviewRepository.save(review);
     }
+
+    // Update only the review text for a given reviewId and propertyId
+    public Review updateReviewTextByProperty(long propertyId, long reviewId, UpdateReviewTextDTO dto) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        if (review.getPropertyId() != propertyId) {
+            throw new RuntimeException("Review does not belong to the specified property");
+        }
+
+        review.setReviewText(dto.getReviewText());
+        return reviewRepository.save(review);
+    }
+
+    // Update only the review rating for a given reviewId and propertyId
+    public Review updateReviewRatingByProperty(long propertyId, long reviewId, UpdateReviewRatingDTO dto) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        if (review.getPropertyId() != propertyId) {
+            throw new RuntimeException("Review does not belong to the specified property");
+        }
+
+        review.setRating(dto.getRating());
+        return reviewRepository.save(review);
+    }
+
 
 
     public void deleteReview(long id) {
@@ -68,4 +102,5 @@ public class ReviewService {
         double sum = reviews.stream().mapToDouble(Review::getRating).sum();
         return sum / reviews.size();
     }
+
 }
