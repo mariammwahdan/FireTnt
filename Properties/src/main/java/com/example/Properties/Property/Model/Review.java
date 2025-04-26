@@ -1,5 +1,4 @@
-package com.example.Properties;
-import jakarta.persistence.*;
+package com.example.Properties.Property.Model;
 
 
 public class Review {

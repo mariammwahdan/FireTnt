@@ -1,15 +1,14 @@
 package com.example.Properties.Property;
 
-import com.example.Properties.Property.DTO.CreatePropertyDTO;
-import com.example.Properties.Property.DTO.CreateReviewWithPropertyIdDTO;
-import com.example.Properties.Property.DTO.UpdatePropertyDTO;
-import com.example.Properties.Review;
+import com.example.Properties.Property.DTO.*;
+import com.example.Properties.Property.Model.Property;
+import com.example.Properties.Property.Model.Review;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
+
 import java.util.List;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -129,6 +128,11 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.isBooked(id));
     }
 
+
+    //#############################################################
+
+
+    // End points that call the Review Service
     @GetMapping("/reviews")
     @ResponseBody
     public ResponseEntity<List<Review>> getAllReviews() {
@@ -143,12 +147,35 @@ public class PropertyController {
     }
 
     @PostMapping("/{propertyId}/reviews")
-    public ResponseEntity<Void> createReviewForProperty(
+    public ResponseEntity<Review> createReviewForProperty(
             @PathVariable Integer propertyId,
             @RequestBody CreateReviewWithPropertyIdDTO createReviewDTO) {
 
-        propertyService.createReviewForProperty(propertyId, createReviewDTO);
-        return ResponseEntity.ok().build();
+        Review createdReview = propertyService.createReviewForProperty(propertyId, createReviewDTO);
+        return ResponseEntity.ok(createdReview);
     }
+
+    // Update Review Text for Property by reviewId
+    @PutMapping("/{propertyId}/reviews/{reviewId}/text")
+    public ResponseEntity<Review> updateReviewTextForProperty(
+            @PathVariable Integer propertyId,
+            @PathVariable long reviewId,
+            @RequestBody UpdateReviewTextDTO dto) {
+
+        Review updatedReview = propertyService.updateReviewTextForProperty(propertyId, reviewId, dto);
+        return ResponseEntity.ok(updatedReview);
+    }
+
+    // Update Review Rating for Property by reviewId
+    @PutMapping("/{propertyId}/reviews/{reviewId}/rating")
+    public ResponseEntity<Review> updateReviewRatingForProperty(
+            @PathVariable Integer propertyId,
+            @PathVariable long reviewId,
+            @RequestBody UpdateReviewRatingDTO dto) {
+
+        Review updatedReview = propertyService.updateReviewRatingForProperty(propertyId, reviewId, dto);
+        return ResponseEntity.ok(updatedReview);
+    }
+
 
 }

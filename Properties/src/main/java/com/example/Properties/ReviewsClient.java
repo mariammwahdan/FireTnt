@@ -1,7 +1,9 @@
 package com.example.Properties;
 
 import com.example.Properties.Property.DTO.CreateReviewWithPropertyIdDTO;
-import com.example.Properties.Review; // Create a simple Review model in Properties if you want
+import com.example.Properties.Property.DTO.UpdateReviewRatingDTO;
+import com.example.Properties.Property.DTO.UpdateReviewTextDTO;
+import com.example.Properties.Property.Model.Review; // Create a simple Review model in Properties if you want
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -44,6 +46,18 @@ public class ReviewsClient {
         String url =  "http://localhost:8081/api/reviews/"  + propertyId;
 
         restTemplate.postForEntity(url, createReviewDTO, Void.class);
+    }
+
+    // Update review text
+    public void updateReviewTextForProperty(Integer propertyId, long reviewId, UpdateReviewTextDTO dto) {
+        String url = "http://localhost:8081/api/reviews/" + reviewId + "/text";
+        restTemplate.put(url, dto);
+    }
+
+    // Update review rating
+    public void updateReviewRatingForProperty(Integer propertyId, long reviewId, UpdateReviewRatingDTO dto) {
+        String url = "http://localhost:8081/api/reviews/" + reviewId + "/rating";
+        restTemplate.put(url, dto);
     }
 
 

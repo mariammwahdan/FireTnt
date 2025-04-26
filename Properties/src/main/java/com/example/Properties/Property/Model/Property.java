@@ -1,4 +1,4 @@
-package com.example.Properties.Property;
+package com.example.Properties.Property.Model;
 import jakarta.persistence.*;
 @Entity
 @Table(name = "properties")

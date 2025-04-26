@@ -1,10 +1,9 @@
 package com.example.Properties.Property;
 
-import com.example.Properties.Property.DTO.CreatePropertyDTO;
-import com.example.Properties.Property.DTO.CreateReviewWithPropertyIdDTO;
-import com.example.Properties.Property.DTO.UpdatePropertyDTO;
+import com.example.Properties.Property.DTO.*;
+import com.example.Properties.Property.Model.Property;
 import com.example.Properties.Redis.RedisClient;
-import com.example.Properties.Review;
+import com.example.Properties.Property.Model.Review;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -172,6 +171,11 @@ public class PropertyService {
         return property.isBooked();
     }
 
+    // ###################################################
+
+
+
+    // Endpoints that call the Review service
     public List<Review> getAllReviewsFromReviewService() {
         return reviewClient.getAllReviews();
     }
@@ -180,8 +184,28 @@ public class PropertyService {
         return reviewClient.getReviewsByPropertyId(propertyId);
     }
 
-    public void createReviewForProperty(Integer propertyId, CreateReviewWithPropertyIdDTO createReviewDTO) {
+    // Create review for property
+    public Review createReviewForProperty(Integer propertyId, CreateReviewWithPropertyIdDTO createReviewDTO) {
         reviewClient.createReview(propertyId, createReviewDTO);
+        return reviewClient.getReviewsByPropertyId(propertyId).get(0); // Assuming the latest review is the one created
+    }
+
+    // Update review text for property by reviewId
+    public Review updateReviewTextForProperty(Integer propertyId, long reviewId, UpdateReviewTextDTO dto) {
+        reviewClient.updateReviewTextForProperty(propertyId, reviewId, dto);
+        return reviewClient.getReviewsByPropertyId(propertyId).stream()
+                .filter(review -> review.getId() == reviewId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+    }
+
+    // Update review rating for property by reviewId
+    public Review updateReviewRatingForProperty(Integer propertyId, long reviewId, UpdateReviewRatingDTO dto) {
+        reviewClient.updateReviewRatingForProperty(propertyId, reviewId, dto);
+        return reviewClient.getReviewsByPropertyId(propertyId).stream()
+                .filter(review -> review.getId() == reviewId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Review not found"));
     }
 
 
