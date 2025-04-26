@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .addFilterBefore(sessionCookieFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/signup", "/login", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
                 )

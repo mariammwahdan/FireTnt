@@ -76,4 +76,3 @@ public class CreateBookingDTO {
         return checkIn != null && checkOut != null && checkOut.after(checkIn);
     }
 }
-
