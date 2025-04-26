@@ -1,6 +1,7 @@
 package com.example.Reviews.Review;
 
 import com.example.Reviews.Review.DTO.CreateReviewDTO;
+import com.example.Reviews.Review.DTO.CreateReviewWithPropertyIdDTO;
 import com.example.Reviews.Review.DTO.UpdateReviewRatingDTO;
 import com.example.Reviews.Review.DTO.UpdateReviewTextDTO;
 import jakarta.validation.Valid;
@@ -28,6 +29,16 @@ public class ReviewController {
         return ResponseEntity.ok(createdReview);
     }
 
+    @PostMapping("/{propertyId}")
+    public ResponseEntity<Review> createReview(
+            @PathVariable Integer propertyId,
+            @Valid @RequestBody CreateReviewWithPropertyIdDTO dto) {
+
+        Review createdReview = reviewService.createReview(propertyId, dto);
+        return ResponseEntity.ok(createdReview);
+    }
+
+
     // 2. Get All Reviews
     @GetMapping
     public ResponseEntity<List<Review>> getAllReviews() {
@@ -46,6 +57,26 @@ public class ReviewController {
     @PutMapping("/{id}/rating")
     public ResponseEntity<Review> updateReviewRating(@PathVariable long id, @Valid @RequestBody UpdateReviewRatingDTO dto) {
         Review updatedReview = reviewService.updateReviewRating(id, dto);
+        return ResponseEntity.ok(updatedReview);
+    }
+
+    // Update only the review text by propertyId and reviewId
+    @PutMapping("/property/{propertyId}/reviews/{id}/text")
+    public ResponseEntity<Review> updateReviewTextByProperty(
+            @PathVariable long propertyId,
+            @PathVariable long id,
+            @Valid @RequestBody UpdateReviewTextDTO dto) {
+        Review updatedReview = reviewService.updateReviewTextByProperty(propertyId, id, dto);
+        return ResponseEntity.ok(updatedReview);
+    }
+
+    // Update only the rating by propertyId and reviewId
+    @PutMapping("/property/{propertyId}/reviews/{id}/rating")
+    public ResponseEntity<Review> updateReviewRatingByProperty(
+            @PathVariable long propertyId,
+            @PathVariable long id,
+            @Valid @RequestBody UpdateReviewRatingDTO dto) {
+        Review updatedReview = reviewService.updateReviewRatingByProperty(propertyId, id, dto);
         return ResponseEntity.ok(updatedReview);
     }
 

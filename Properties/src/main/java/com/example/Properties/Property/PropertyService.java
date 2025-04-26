@@ -1,6 +1,7 @@
 package com.example.Properties.Property;
 
 import com.example.Properties.Property.DTO.CreatePropertyDTO;
+import com.example.Properties.Property.DTO.CreateReviewWithPropertyIdDTO;
 import com.example.Properties.Property.DTO.UpdatePropertyDTO;
 import com.example.Properties.Redis.RedisClient;
 import com.example.Properties.Review;
@@ -174,4 +175,14 @@ public class PropertyService {
     public List<Review> getAllReviewsFromReviewService() {
         return reviewClient.getAllReviews();
     }
+
+    public List<Review> getReviewsForProperty(Integer propertyId) {
+        return reviewClient.getReviewsByPropertyId(propertyId);
+    }
+
+    public void createReviewForProperty(Integer propertyId, CreateReviewWithPropertyIdDTO createReviewDTO) {
+        reviewClient.createReview(propertyId, createReviewDTO);
+    }
+
+
 }

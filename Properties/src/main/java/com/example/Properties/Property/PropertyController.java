@@ -1,6 +1,7 @@
 package com.example.Properties.Property;
 
 import com.example.Properties.Property.DTO.CreatePropertyDTO;
+import com.example.Properties.Property.DTO.CreateReviewWithPropertyIdDTO;
 import com.example.Properties.Property.DTO.UpdatePropertyDTO;
 import com.example.Properties.Review;
 import jakarta.validation.Valid;
@@ -134,4 +135,20 @@ public class PropertyController {
         List<Review> reviews = propertyService.getAllReviewsFromReviewService();
         return ResponseEntity.ok(reviews);
     }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<Review>> getReviewsForProperty(@PathVariable("id") Integer propertyId) {
+        List<Review> reviews = propertyService.getReviewsForProperty(propertyId);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @PostMapping("/{propertyId}/reviews")
+    public ResponseEntity<Void> createReviewForProperty(
+            @PathVariable Integer propertyId,
+            @RequestBody CreateReviewWithPropertyIdDTO createReviewDTO) {
+
+        propertyService.createReviewForProperty(propertyId, createReviewDTO);
+        return ResponseEntity.ok().build();
+    }
+
 }
