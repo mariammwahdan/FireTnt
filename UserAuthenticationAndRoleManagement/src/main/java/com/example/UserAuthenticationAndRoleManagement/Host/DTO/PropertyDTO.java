@@ -8,28 +8,32 @@ import lombok.Setter;
 @Setter
 public class PropertyDTO {
 
+    // Property ID
+    private long propertyId;
     // Property attributes
-
-    private long id;
     private String title;
     private String description;
     private double pricePerNight;
-    private boolean isBooked;
+    @Setter
+    private boolean booked;
     private String hostId;
 
     // Constructors
     public PropertyDTO() {
     }
-    public PropertyDTO(long id, String title, String description, double pricePerNight, boolean isBooked, String hostId) {
-        this.id = id;
+    public PropertyDTO( long propertyId,String title, String description, double pricePerNight, boolean booked, String hostId) {
+        this.propertyId = propertyId;
         this.title = title;
         this.description = description;
         this.pricePerNight = pricePerNight;
-        this.isBooked = isBooked;
+        this.booked = booked;
         this.hostId = hostId;
     }
 
     // Getters & Setters
+public boolean getBooked() {
+        return this.booked;
+    }
 
 
 }

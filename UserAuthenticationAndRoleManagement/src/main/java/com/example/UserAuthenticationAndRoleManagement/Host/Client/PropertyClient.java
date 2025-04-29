@@ -3,8 +3,7 @@ package com.example.UserAuthenticationAndRoleManagement.Host.Client;
 
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -42,10 +41,22 @@ public class PropertyClient {
 
     public void createProperty(PropertyDTO propertyDTO) {
         String url = propertyServiceUrl + "/create";
-        restTemplate.postForEntity(url, propertyDTO, Void.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<PropertyDTO> request = new HttpEntity<>(propertyDTO, headers);
+
+        restTemplate.postForEntity(url, request, Void.class);}
+
+    public PropertyDTO getPropertyById(Integer id) {
+        String url = propertyServiceUrl + "/" + id;
+        return restTemplate.getForObject(url, PropertyDTO.class);
     }
-    public void updateProperty(long propertyId, PropertyDTO propertyDTO) {
-        String url = propertyServiceUrl + "/update/" + propertyId;
-        restTemplate.put(url, propertyDTO);
+
+    public void updateProperty(Integer id, PropertyDTO dto) {
+        String url = propertyServiceUrl + "/" + id +"/update";
+        HttpEntity<PropertyDTO> request = new HttpEntity<>(dto);
+        restTemplate.exchange(url, HttpMethod.PUT, request, Void.class);
     }
+
 }

@@ -27,14 +27,21 @@ public class PropertyController {
 //        model.addAttribute("propertyForm", new CreatePropertyDTO());
 //    return "add-property-form"    ;
 //    }
-    @PostMapping("/create")
-    public String createProperty(@Valid CreatePropertyDTO dto,
-                                                   BindingResult result,
-                                                   RedirectAttributes redirectAttributes) {
-        propertyService.createProperty(dto);
-        redirectAttributes.addFlashAttribute("success", "Property created successfully!");
-        return "redirect:/api/properties/all";
-    }
+//    @PostMapping("/create")
+//    public String createProperty(@Valid CreatePropertyDTO dto,
+//                                                   BindingResult result,
+//                                                   RedirectAttributes redirectAttributes) {
+//        propertyService.createProperty(dto);
+//        redirectAttributes.addFlashAttribute("success", "Property created successfully!");
+//        return "redirect:/api/properties/all";
+//    }
+@PostMapping("/create")
+@ResponseBody
+public ResponseEntity<String> createPropertyApi(@RequestBody @Valid CreatePropertyDTO dto) {
+    propertyService.createProperty(dto);
+    return ResponseEntity.ok("Property created successfully");
+}
+
 
     @GetMapping("/all")
     public String getAllProperties(Model model) {
@@ -59,43 +66,43 @@ public class PropertyController {
                 .toList();
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
-        Property property = propertyService.getPropertyById(id);
-        if (property == null) {
-            return "redirect:api/properties/all"; // Or show a 404 page
-        }
-        UpdatePropertyDTO dto = new UpdatePropertyDTO();
-        dto.setTitle(property.getTitle());
-        dto.setDescription(property.getDescription());
-        dto.setPricePerNight(property.getPricePerNight());
-        dto.setHostId(property.getHostId()); // Assuming you have a getHost().getId()
-        dto.setIsBooked(property.isBooked());
-        model.addAttribute("propertyId", id);
-        model.addAttribute("propertyForm", dto);
-        return "edit-property-form";
-    }
-    @PostMapping("/edit/{id}")
-    public String updateProperty(
-            @PathVariable Integer id,
-            @ModelAttribute("propertyForm") @Valid UpdatePropertyDTO dto,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            return "edit-property-form";
-        }
+//    @GetMapping("/edit/{id}")
+//    public String showEditForm(@PathVariable Integer id, Model model) {
+//        Property property = propertyService.getPropertyById(id);
+//        if (property == null) {
+//            return "redirect:api/properties/all"; // Or show a 404 page
+//        }
+//        UpdatePropertyDTO dto = new UpdatePropertyDTO();
+//        dto.setTitle(property.getTitle());
+//        dto.setDescription(property.getDescription());
+//        dto.setPricePerNight(property.getPricePerNight());
+//        dto.setHostId(property.getHostId()); // Assuming you have a getHost().getId()
+//        dto.setIsBooked(property.isBooked());
+//        model.addAttribute("propertyId", id);
+//        model.addAttribute("propertyForm", dto);
+//        return "edit-property-form";
+//    }
+//    @PostMapping("/edit/{id}")
+//    public String updateProperty(
+//            @PathVariable Integer id,
+//            @ModelAttribute("propertyForm") @Valid UpdatePropertyDTO dto,
+//            BindingResult bindingResult,
+//            RedirectAttributes redirectAttributes) {
+//        if (bindingResult.hasErrors()) {
+//            return "edit-property-form";
+//        }
+//
+//        Property updated = propertyService.updateProperty(id, dto);
+//        long pID=updated.getPropertyId();
+//        if (updated != null) {
+//            redirectAttributes.addFlashAttribute("successMessage", "Property updated successfully.");
+//        } else {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Property not found.");
+//        }
+//        return "redirect:/api/properties/"+pID;
+//    }
 
-        Property updated = propertyService.updateProperty(id, dto);
-        long pID=updated.getPropertyId();
-        if (updated != null) {
-            redirectAttributes.addFlashAttribute("successMessage", "Property updated successfully.");
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Property not found.");
-        }
-        return "redirect:/api/properties/"+pID;
-    }
-
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/details")
     public String viewPropertyDetails(@PathVariable Integer id, Model model) {
         Property property = propertyService.getPropertyById(id);
         if (property == null) {
@@ -104,7 +111,25 @@ public class PropertyController {
         model.addAttribute("property", property);
         return "property-details";
     }
+@GetMapping("/{id}")
+@ResponseBody
+public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
+    Property property = propertyService.getPropertyById(id);
+    if (property == null) {
+        System.out.println("NULL PROPERTY");
+    }
+    return ResponseEntity.ok(property);
+}
 
+    @PutMapping("/{id}/update")
+    public ResponseEntity<Property> updateProperty(@PathVariable Integer id, @RequestBody UpdatePropertyDTO dto) {
+        Property updatedProperty = propertyService.updateProperty(id, dto);
+        if (updatedProperty == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedProperty);
+
+}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProperty(@PathVariable Integer id) {
       propertyService.deleteProperty(id);

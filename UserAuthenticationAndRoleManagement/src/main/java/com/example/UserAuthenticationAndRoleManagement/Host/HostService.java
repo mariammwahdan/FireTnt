@@ -4,6 +4,9 @@ package com.example.UserAuthenticationAndRoleManagement.Host;
 import com.example.UserAuthenticationAndRoleManagement.Config.RestTemplateConfig;
 import com.example.UserAuthenticationAndRoleManagement.Host.Client.PropertyClient;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
+import com.example.UserAuthenticationAndRoleManagement.User.User;
+import com.example.UserAuthenticationAndRoleManagement.User.UserRepository;
+import com.example.UserAuthenticationAndRoleManagement.User.UserService;
 import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -19,12 +22,14 @@ public class HostService {
     private final RestTemplate restTemplate;
     private final PropertyClient propertyClient;
     private static final String PROPERTY_SERVICE_URL = "http://localhost:8082/api/properties";
-
+    UserService userService;
 
     @Autowired
-    public HostService(PropertyClient propertyClient, RestTemplate restTemplate) {
+    public HostService(PropertyClient propertyClient, RestTemplate restTemplate,UserService userService) {
         this.restTemplate = restTemplate;
         this.propertyClient = propertyClient;
+        this.userService = userService;
+
     }
     public String getUidFromPrincipal(Principal principal) {
         if (principal instanceof Authentication auth &&
@@ -34,16 +39,15 @@ public class HostService {
         throw new IllegalStateException("Invalid principal type");
     }
 
-//    public List<PropertyDTO> getPropertiesForHost(Long hostId) {
-//        String url = PROPERTY_SERVICE_URL + "/host/" + hostId;
-//        PropertyDTO[] response = restTemplate.getForObject(url, PropertyDTO[].class);
-//        return Arrays.asList(response);
-//    }
 
-//    public void createProperty(CreatePropertyDTO dto) {
-//        String url = PROPERTY_SERVICE_URL + "/create";
-//        restTemplate.postForObject(url, dto, Void.class);
-//    }
+    public String getRoleNameFromPrincipal(Principal principal) {
+        if (principal instanceof FirebasePrincipal fp) {
+            User user = userService.findByEmail(fp.getEmail());
+            return user.getRole().name();
+        }
+        return "GUEST"; // fallback
+    }
+
     // ###################################################
 
 
@@ -54,6 +58,13 @@ public class HostService {
     }
     public void createProperty(PropertyDTO dto) {
         propertyClient.createProperty(dto);
+    }
+    public PropertyDTO getPropertyById(Integer id) {
+        return propertyClient.getPropertyById(id);
+    }
+
+    public void updateProperty(Integer id, PropertyDTO dto) {
+        propertyClient.updateProperty(id, dto);
     }
 
 

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 
 
 public class CreatePropertyDTO {
-    private Long propertyId;
+
     @NotBlank(message = "Title is required")
     private String title;
 
@@ -17,23 +17,21 @@ public class CreatePropertyDTO {
     @NotNull(message = "Is booked status is required")
     private boolean isBooked;
 
-    @Positive(message = "Host ID must be a positive number")
+
     private String hostId; // Foreign key reference to User Microservice
     // Getters and Setters
 
 public CreatePropertyDTO() {}
-    public CreatePropertyDTO(Long propertyId, String title, String description,
+    public CreatePropertyDTO( String title, String description,
                        double pricePerNight, boolean isBooked, String hostId) {
-        this.propertyId = propertyId;
+
         this.title = title;
         this.description = description;
         this.pricePerNight = pricePerNight;
         this.isBooked = isBooked;
         this.hostId = hostId;
     }
-    public long getPropertyId() {
-        return propertyId;
-    }
+
     public String getTitle() {
         return title;
     }

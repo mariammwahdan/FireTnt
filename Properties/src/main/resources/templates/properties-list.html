@@ -22,6 +22,9 @@
             <h2 class="text-xl font-semibold mb-2" th:text="${property.title}">Property Name</h2>
             <p class="text-sm text-gray-600 mb-1">Type: <span th:text="${property.description}">Apartment</span></p>
             <p class="text-sm text-gray-600 mb-2">Price: $<span th:text="${property.pricePerNight}">1000</span></p>
+            <p class="text-sm text-gray-600 mb-2">Host ID: <span th:text="${property.hostId}">1</span></p>
+            <p class="text-sm text-gray-600 mb-2">Status: <span th:text="${property.booked ? 'Booked' : 'Available'}" th:classappend="${property.booked} ? 'text-red-500' : 'text-green-500'">Available</span></p>
+
             <a th:href="@{/api/properties/{id}(id=${property.propertyId})}" class="inline-block bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded hover:bg-blue-700">
                 View Details
             </a>
