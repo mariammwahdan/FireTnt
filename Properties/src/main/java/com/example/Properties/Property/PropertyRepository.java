@@ -12,5 +12,5 @@ public interface PropertyRepository extends JpaRepository<Property, Integer> {
     Property findByDescription(String description);
     Property findByPricePerNight(double pricePerNight);
     List<Property> findByIsBooked(boolean isBooked);
-    List<Property> findByHostId(Long hostId);
+    List<Property> findByHostId(String hostId);
 }

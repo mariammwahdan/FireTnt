@@ -18,12 +18,12 @@ public class CreatePropertyDTO {
     private boolean isBooked;
 
     @Positive(message = "Host ID must be a positive number")
-    private Long hostId; // Foreign key reference to User Microservice
+    private String hostId; // Foreign key reference to User Microservice
     // Getters and Setters
 
 public CreatePropertyDTO() {}
     public CreatePropertyDTO(Long propertyId, String title, String description,
-                       double pricePerNight, boolean isBooked, Long hostId) {
+                       double pricePerNight, boolean isBooked, String hostId) {
         this.propertyId = propertyId;
         this.title = title;
         this.description = description;
@@ -59,10 +59,10 @@ public CreatePropertyDTO() {}
     public void setBooked(boolean isBooked) {
         this.isBooked = isBooked;
     }
-    public Long getHostId() {
+    public String getHostId() {
         return hostId;
     }
-    public void setHostId(Long hostId) {
+    public void setHostId(String hostId) {
         this.hostId = hostId;
     }
 

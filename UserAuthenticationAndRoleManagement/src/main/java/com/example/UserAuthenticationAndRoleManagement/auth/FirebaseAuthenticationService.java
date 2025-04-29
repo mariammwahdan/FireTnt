@@ -118,7 +118,7 @@ public class FirebaseAuthenticationService {
                     ));
 
             return new LoginResponse(
-                    u.getUserId(),
+                    u.getFirebaseUid(),
                     u.getEmail(),
                     idToken,     // optional: echo back
                     null         // no refreshToken, unless passed in
@@ -502,7 +502,7 @@ public class FirebaseAuthenticationService {
 
         // Step 5: Return LoginResponse with the user's details and tokens
         return new LoginResponse(
-                u.getUserId(),
+                u.getFirebaseUid(),
                 u.getEmail(),
                 resp.getIdToken(),
                 resp.getRefreshToken()

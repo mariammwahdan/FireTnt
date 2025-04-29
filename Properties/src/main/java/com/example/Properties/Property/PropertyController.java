@@ -22,18 +22,15 @@ public class PropertyController {
         this.propertyService = propertyService;
     }
 
-    @GetMapping("/create")
-    public String showAddForm(Model model) {
-        model.addAttribute("propertyForm", new CreatePropertyDTO());
-    return "add-property-form"    ;
-    }
+//    @GetMapping("/create")
+//    public String showAddForm(Model model) {
+//        model.addAttribute("propertyForm", new CreatePropertyDTO());
+//    return "add-property-form"    ;
+//    }
     @PostMapping("/create")
-    public String createProperty(@Valid @ModelAttribute("propertyForm") CreatePropertyDTO dto,
+    public String createProperty(@Valid CreatePropertyDTO dto,
                                                    BindingResult result,
                                                    RedirectAttributes redirectAttributes) {
-        if (result.hasErrors()) {
-            return "add-property-form";
-        }
         propertyService.createProperty(dto);
         redirectAttributes.addFlashAttribute("success", "Property created successfully!");
         return "redirect:/api/properties/all";
@@ -46,21 +43,12 @@ public class PropertyController {
         return "properties-list";
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
-//        Property property = propertyService.getPropertyById(id);
-//        if (property != null) {
-//            return new ResponseEntity<>(property,HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
-
     @GetMapping("/host/{hostId}")
     @ResponseBody
-    public List<CreatePropertyDTO> getPropertiesByHostId(@PathVariable Long hostId) {
+    public List<Property> getPropertiesByHostId(@PathVariable String hostId) {
         List<Property> properties = propertyService.getPropertiesByHostId(hostId);
         return properties.stream()
-                .map(p -> new CreatePropertyDTO(
+                .map(p -> new Property(
                         p.getPropertyId(),
                         p.getTitle(),
                         p.getDescription(),

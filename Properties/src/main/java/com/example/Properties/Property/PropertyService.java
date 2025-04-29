@@ -124,7 +124,7 @@ public class PropertyService {
         return property;
     }
 
-    public List<Property> getPropertiesByHostId(Long hostId) {
+    public List<Property> getPropertiesByHostId(String hostId) {
         return propertyRepository.findByHostId(hostId);
     }
 

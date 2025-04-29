@@ -2,7 +2,11 @@ package com.example.UserAuthenticationAndRoleManagement.Host.Client;
 
 
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -10,18 +14,38 @@ import java.util.List;
 @Component
 public class PropertyClient {
 
-    private final WebClient propertyWebClient;
+    private final RestTemplate restTemplate;
 
-    public PropertyClient(WebClient propertyWebClient) {
-        this.propertyWebClient = propertyWebClient;
+    public PropertyClient(RestTemplate restTemplate) {
+        this.restTemplate=restTemplate;
     }
 
-    public List<PropertyDTO> getPropertiesByHostId(Long hostId) {
-        return propertyWebClient.get()
-                .uri("/host/{hostId}", hostId) // Your property microservice endpoint
-                .retrieve()
-                .bodyToFlux(PropertyDTO.class)
-                .collectList()
-                .block(); // Blocking here for simplicity. Use reactive if needed.
+   private final String propertyServiceUrl = "http://localhost:8082/api/properties";
+
+    public List<PropertyDTO> getAllProperties() {
+        PropertyDTO[] propertiesArray = restTemplate.getForObject(propertyServiceUrl, PropertyDTO[].class);
+        return List.of(propertiesArray);
+    }
+    public List<PropertyDTO> getPropertiesByHostId(String hostId) {
+        String url = propertyServiceUrl + "/host/" + hostId;
+
+        ResponseEntity<List<PropertyDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<PropertyDTO>>() {}
+        );
+
+        return response.getBody();
+    }
+
+
+    public void createProperty(PropertyDTO propertyDTO) {
+        String url = propertyServiceUrl + "/create";
+        restTemplate.postForEntity(url, propertyDTO, Void.class);
+    }
+    public void updateProperty(long propertyId, PropertyDTO propertyDTO) {
+        String url = propertyServiceUrl + "/update/" + propertyId;
+        restTemplate.put(url, propertyDTO);
     }
 }
