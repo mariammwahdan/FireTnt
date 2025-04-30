@@ -59,7 +59,7 @@ public class BookingService {
                 .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
                 .mapToDouble(Booking::getPrice).sum();
     }
-    public List<Booking> getBookingsByGuestId(Long guestId) {
+    public List<Booking> getBookingsByGuestId(String guestId) {
         return bookingRepository.findByGuestId(guestId);
     }
 
@@ -76,7 +76,7 @@ public class BookingService {
         return booking.getCheckIn().after(new Date());
     }
 
-    public Double getTotalProfitByUserId(Long userId) {
+    public Double getTotalProfitByUserId(String userId) {
         return bookingRepository.findByGuestId(userId).stream()
                 .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
                 .mapToDouble(Booking::getPrice).sum();
