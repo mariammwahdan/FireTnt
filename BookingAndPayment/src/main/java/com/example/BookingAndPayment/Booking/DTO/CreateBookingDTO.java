@@ -1,6 +1,10 @@
 package com.example.BookingAndPayment.Booking.DTO;
 
+import com.example.BookingAndPayment.Booking.Booking;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 
 public class CreateBookingDTO {
@@ -8,12 +12,17 @@ public class CreateBookingDTO {
     @Positive(message = "Property ID must be a positive number")
     private long propertyId;
 
-    @Positive(message = "Guest ID must be a positive number")
-    private long guestId;
 
+    private String guestId;
+
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @NotNull(message = "Check-in date is required")
     private Date checkIn;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @NotNull(message = "Check-out date is required")
     private Date checkOut;
 
@@ -22,7 +31,7 @@ public class CreateBookingDTO {
 
     @Min(value = 1, message = "Number of nights must be positive")
     private int noOfNights;
-
+    private Booking.BookingStatus status = Booking.BookingStatus.ACTIVE;
     // Getters and Setters
     public long getPropertyId() {
         return propertyId;
@@ -32,11 +41,11 @@ public class CreateBookingDTO {
         this.propertyId = propertyId;
     }
 
-    public long getGuestId() {
+    public String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(long guestId) {
+    public void setGuestId(String guestId) {
         this.guestId = guestId;
     }
 
@@ -54,6 +63,13 @@ public class CreateBookingDTO {
 
     public void setCheckOut(Date checkOut) {
         this.checkOut = checkOut;
+    }
+
+    public Booking.BookingStatus getStatus() {
+        return status;
+    }
+    public void setStatus(Booking.BookingStatus status) {
+        this.status = status;
     }
 
     public double getPrice() {
