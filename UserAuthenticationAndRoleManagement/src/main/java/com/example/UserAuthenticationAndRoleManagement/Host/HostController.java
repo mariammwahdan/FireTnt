@@ -52,9 +52,8 @@ private  static final Logger LOGGER = LoggerFactory.getLogger(HostController.cla
 //        if (result.hasErrors()) {
 //            return "add-property-form";
 //        }
-        System.out.println("CREATED NEW PROPP: "+ dto);
+
         String hostId = getHostIdFromPrincipal(principal);
-        System.out.println("Host ID: " + hostId);
         dto.setHostId(hostId); // ➡️ Important! Set hostId here, not from form.
         hostService.createProperty(dto);
         redirectAttributes.addFlashAttribute("success", "Property created successfully!");
@@ -90,6 +89,15 @@ List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
         model.addAttribute("properties", properties);
         return "host-properties";
     }
+
+    @GetMapping("/properties/{id}/delete")
+    public String deleteProperty(@PathVariable("id") Integer propertyId,
+                                 RedirectAttributes redirectAttributes) {
+        hostService.deleteProperty(propertyId);
+        redirectAttributes.addFlashAttribute("success", "Property deleted successfully!");
+        return "redirect:/host/properties";
+    }
+
 //    private FirebasePrincipal getFirebasePrincipal(Authentication auth) {
 //        if (auth.getPrincipal() instanceof FirebasePrincipal fp) {
 //            return fp;

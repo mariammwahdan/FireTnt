@@ -128,7 +128,12 @@ public class UserService {
     public User fetchById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
-
+    public User fetchByFirebaseUid(String firebaseUid) {
+            return userRepository.findByFirebaseUid(firebaseUid)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "User not found"
+                    ));
+        }
 //    @CacheEvict(value = "users", allEntries = true)
 //    @Transactional
 //    public User createUser(CreateUserDTO dto) {

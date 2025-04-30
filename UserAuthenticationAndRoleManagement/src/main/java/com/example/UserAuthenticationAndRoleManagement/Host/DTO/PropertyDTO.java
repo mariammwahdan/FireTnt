@@ -18,6 +18,7 @@ public class PropertyDTO {
     private boolean booked;
     private String hostId;
 
+
     // Constructors
     public PropertyDTO() {
     }

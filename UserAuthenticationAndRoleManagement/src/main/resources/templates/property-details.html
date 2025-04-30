@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+        <html xmlns:th="http://www.thymeleaf.org">
+        <head>
+        <meta charset="UTF-8">
+        <title>Property Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+<div th:replace="fragments/navbar :: navbar(role=${role})"></div>
+<div class="max-w-3xl mx-auto mt-24 p-8 bg-white rounded-2xl shadow-lg">
+    <h1 class="text-3xl font-bold mb-6">Property Details</h1>
+   
+    <div class="space-y-4 text-lg">
+        <div>
+            <span class="font-semibold text-gray-700">Property ID:</span>
+            <span th:text="${property.propertyId}">1</span>
+        </div>
+        <div>
+            <span class="font-semibold text-gray-700">Title:</span>
+            <span th:text="${property.title}">Modern Apartment</span>
+        </div>
+        <div>
+            <span class="font-semibold text-gray-700">Description:</span>
+            <span th:text="${property.description}">Spacious and sunny flat in the city center</span>
+        </div>
+        <div>
+            <span class="font-semibold text-gray-700">Price per Night:</span>
+            <span th:text="${property.pricePerNight}">150.00</span> EGP
+        </div>
+        <div>
+            <span class="font-semibold text-gray-700">Host Name:</span>
+            <span th:text="${firstname}">42</span>
+        </div>
+        <div>
+            <span class="font-semibold text-gray-700">Booking Status:</span>
+            <span th:text="${property.booked ? 'Booked' : 'Available'}"
+                  th:classappend="${property.booked} ? 'text-red-500' : 'text-green-500'">
+                Available
+            </span>
+        </div>
+    </div>
+
+    <div th:if="${role == 'GUEST'}" class="mt-8 flex justify-end space-x-4">
+        <a th:href="@{/api/users/properties/all}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded-xl">Back</a>
+        <a th:if="${!property.booked}" th:href="@{/guest/properties/{propertyId}/book(propertyId=${property.propertyId})}"
+           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-xl">
+            Book 
+        </a>
+    </div>
+</div>
+<script>
+    // Auto-hide flash message after 2 seconds
+    setTimeout(function() {
+        const flash = document.getElementById('flash-success');
+        if (flash) {
+            flash.style.display = 'none';
+        }
+    }, 2000);
+
+</script>
+</body>
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>

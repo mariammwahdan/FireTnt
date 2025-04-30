@@ -65,6 +65,11 @@ public String getRoleName(){
     public void updateProperty(Integer id, PropertyDTO dto) {
         propertyClient.updateProperty(id, dto);
     }
+    public void deleteProperty(Integer id) {
+        propertyClient.deleteProperty(id);
+    }
 
-
+    public List<PropertyDTO> getAllProperties() {
+        return propertyClient.getProperties();
+    }
 }

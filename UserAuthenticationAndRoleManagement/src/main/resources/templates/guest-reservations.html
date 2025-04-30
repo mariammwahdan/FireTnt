@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>My Bookings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen pt-20 px-6">
+
+<!-- Navbar -->
+<div th:replace="fragments/navbar :: navbar(role=${role})" class="fixed top-0 left-0 right-0 z-50"></div>
+
+<!-- Container -->
+<div class="max-w-7xl mx-auto">
+  <h2 class="text-2xl font-bold mb-6 text-center">My Bookings</h2>
+
+  <div th:if="${bookings.size() == 0}" class="text-center text-gray-600 mb-6">You have no bookings yet.</div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+    <!-- Each Booking -->
+    <div th:each="booking : ${bookings}" class="p-4 shadow-md bg-white border rounded-lg">
+   <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.getPropertyTitle()}"></span></h3>
+     <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.getPropertyDescription()}"></span></h3>
+      <p class="text-sm text-gray-600 mb-1">Check-in: <span th:text="${#dates.format(booking.getBooking().checkIn, 'yyyy-MM-dd')}">2025-05-01</span></p>
+      <p class="text-sm text-gray-600 mb-1">Check-out: <span th:text="${#dates.format(booking.getBooking().checkOut, 'yyyy-MM-dd')}">2025-05-05</span></p>
+      <p class="text-sm text-gray-600 mb-1">Nights: <span th:text="${booking.getBooking().noOfNights}">4</span></p>
+      <p class="text-sm text-gray-600 mb-1">Price: EGP <span th:text="${booking.getBooking().price}">1200.00</span></p>
+      <p class="text-sm" th:classappend="${booking.getBooking().status.name() == 'CANCELLED'} ? 'text-red-600' : 'text-green-600'">
+        Status: <span th:text="${booking.getBooking().status}"></span>
+      </p>
+      <form th:if="${booking.booking.status.name() != 'CANCELLED'}"
+            th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.id})}" method="post">
+        <button type="submit"
+                class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4">
+          Cancel Booking
+        </button>
+      </form>
+
+      <!-- Cancel button only if not already cancelled -->
+
+
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

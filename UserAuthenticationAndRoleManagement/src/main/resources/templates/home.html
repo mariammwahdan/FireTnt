@@ -1,16 +1,61 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FireTnt</title>
-   </head>
-<body>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-<!-- Include navbar fragment -->
+<body class="bg-gray-100 text-gray-900">
+
+<!-- Navbar Fragment -->
 <div th:replace="fragments/navbar :: navbar(role=${role})"></div>
 
+<!-- Hero Section -->
+<div class="relative h-[60vh] flex items-center justify-center text-center text-white bg-black bg-opacity-50">
+    <img src="https://images.unsplash.com/photo-1582719478129-b2f68c34b9d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80"
+         alt="Hero Background"
+         class="absolute top-0 left-0 w-full h-full object-cover -z-10">
+    <div>
+        <h1 class="text-4xl font-bold mb-2">Welcome to FireTnt</h1>
+        <p class="text-lg">Your gateway to unique vacation homes around the world</p>
+    </div>
+</div>
 
+<!-- Main Content -->
+<div class="max-w-6xl mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <!-- Show Properties -->
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-xl transition">
+            <h2 class="text-xl font-semibold mb-2">Explore Properties</h2>
+            <p class="text-gray-600 mb-4">Browse beautiful homes, cabins, and beachfront escapes.</p>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    onclick="location.href='/api/users/properties/all'">Show Properties</button>
+        </div>
+
+        <!-- Host Property -->
+        <div th:if="${role == 'HOST'}" class="bg-white shadow-md rounded-lg p-6 hover:shadow-xl transition">
+            <h2 class="text-xl font-semibold mb-2">Host</h2>
+            <p class="text-gray-600 mb-4">List your property and start earning from guests today.</p>
+            <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                    onclick="location.href='/host/properties'">My Properties</button>
+        </div>
+
+        <!-- My Bookings -->
+        <div th:if="${role == 'GUEST'}" class="bg-white shadow-md rounded-lg p-6 hover:shadow-xl transition">
+            <h2 class="text-xl font-semibold mb-2">Guest</h2>
+            <p class="text-gray-600 mb-4">View or manage your upcoming stays and history.</p>
+            <button class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+                    onclick="location.href='/guest/bookings'">My Reservations</button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white text-center py-4">
+    <p class="text-sm">&copy; 2024 StayNest. All rights reserved.</p>
+</footer>
 
 </body>
 </html>

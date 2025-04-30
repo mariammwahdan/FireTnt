@@ -20,14 +20,14 @@
 
         <!-- Center Links -->
         <ul class="hidden md:flex flex-1 justify-center space-x-6">
-            <li><a href="/home" class="text-white">Home</a></li>
+            <li><a href="/api/users/dashboard" class="text-white">Home</a></li>
             <li><a href="/about" class="text-white">About Us</a></li>
             <li><a href="/contact" class="text-white">Contact Us</a></li>
 
             <!-- Role-based center links -->
             <li th:if="${role == 'ADMIN'}"><a href="/admin/panel" class="text-white">Admin Panel</a></li>
             <li th:if="${role == 'HOST'}"><a href="/host/properties" class="text-white">My Listings</a></li>
-            <li th:if="${role == 'GUEST'}"><a href="/guest/reservations" class="text-white">My Reservations</a></li>
+            <li th:if="${role == 'GUEST'}"><a href="/guest/bookings" class="text-white">My Reservations</a></li>
         </ul>
 
         <!-- Right Side Auth/Profile -->

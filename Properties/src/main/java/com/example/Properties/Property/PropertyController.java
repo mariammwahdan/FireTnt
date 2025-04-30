@@ -34,11 +34,26 @@ public class PropertyController {
     }
 
 
+//    @GetMapping("/all")
+//    public String getAllProperties(Model model) {
+//        List<Property> propertyList = propertyService.getAllProperties();
+//        model.addAttribute("properties", propertyList);
+//        return "properties-list";
+//    }
     @GetMapping("/all")
-    public String getAllProperties(Model model) {
-        List<Property> propertyList = propertyService.getAllProperties();
-        model.addAttribute("properties", propertyList);
-        return "properties-list";
+    @ResponseBody
+    public List<Property> getAllProperties() {
+        List<Property> properties = propertyService.getAllProperties();
+        return properties.stream()
+                .map(p -> new Property(
+                        p.getPropertyId(),
+                        p.getTitle(),
+                        p.getDescription(),
+                        p.getPricePerNight(),
+                        p.isBooked(),
+                        p.getHostId()
+                ))
+                .toList();
     }
 
     @GetMapping("/host/{hostId}")
@@ -99,6 +114,9 @@ public class PropertyController {
     public ResponseEntity<Boolean> isBooked(@PathVariable Integer id) {
         return ResponseEntity.ok(propertyService.isBooked(id));
     }
+
+
+
 
 
     //#############################################################
