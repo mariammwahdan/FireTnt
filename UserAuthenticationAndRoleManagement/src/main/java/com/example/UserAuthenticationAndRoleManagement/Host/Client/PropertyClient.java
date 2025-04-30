@@ -1,6 +1,7 @@
 package com.example.UserAuthenticationAndRoleManagement.Host.Client;
 
 
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -20,6 +21,7 @@ public class PropertyClient {
     }
 
    private final String propertyServiceUrl = "http://localhost:8082/api/properties";
+    private final String bookingServiceUrl = "http://localhost:8084/api/booking";
 
     public List<PropertyDTO> getPropertiesByHostId(String hostId) {
         String url = propertyServiceUrl + "/host/" + hostId;
@@ -34,7 +36,16 @@ public class PropertyClient {
         return response.getBody();
     }
 
-
+    public List<PropertyDTO> getProperties(){
+        String url = propertyServiceUrl + "/all";
+        ResponseEntity<List<PropertyDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<PropertyDTO>>() {}
+        );
+        return response.getBody();
+    }
     public void createProperty(PropertyDTO propertyDTO) {
         String url = propertyServiceUrl + "/create";
         HttpHeaders headers = new HttpHeaders();
@@ -54,5 +65,20 @@ public class PropertyClient {
         HttpEntity<PropertyDTO> request = new HttpEntity<>(dto);
         restTemplate.exchange(url, HttpMethod.PUT, request, Void.class);
     }
+    public void deleteProperty(Integer propertyId) {
+        String url = propertyServiceUrl + "/" + propertyId;
+        restTemplate.delete(url);
+    }
 
+    public List<BookingDTO> getBookingsByPropertyId(String propertyId) {
+        String url = bookingServiceUrl + "/property/" + propertyId;
+        ResponseEntity<List<BookingDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<BookingDTO>>() {}
+        );
+
+        return response.getBody();
+    }
 }

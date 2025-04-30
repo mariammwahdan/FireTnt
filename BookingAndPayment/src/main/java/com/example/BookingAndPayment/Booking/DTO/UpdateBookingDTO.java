@@ -9,7 +9,7 @@ public class UpdateBookingDTO {
     private long propertyId;
 
     @Positive(message = "Guest ID must be a positive number")
-    private long guestId;
+    private String guestId;
 
     @NotNull(message = "Check-in date is required")
     private Date checkIn;
@@ -32,11 +32,11 @@ public class UpdateBookingDTO {
         this.propertyId = propertyId;
     }
 
-    public long getGuestId() {
+    public String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(long guestId) {
+    public void setGuestId(String guestId) {
         this.guestId = guestId;
     }
 

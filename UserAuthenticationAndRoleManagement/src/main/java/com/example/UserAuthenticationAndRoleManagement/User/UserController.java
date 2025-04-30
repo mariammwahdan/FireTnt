@@ -3,6 +3,8 @@ package com.example.UserAuthenticationAndRoleManagement.User;
 
 
 
+import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
+import com.example.UserAuthenticationAndRoleManagement.Host.HostService;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.CreateUserDTO;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.NotificationDto;
 import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
@@ -18,9 +20,10 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService svc;
-
-    public UserController(UserService svc) {
+    private final HostService hostService;
+    public UserController(UserService svc, HostService hostService) {
         this.svc = svc;
+        this.hostService = hostService;
     }
 
     @GetMapping
@@ -44,6 +47,27 @@ public class UserController {
 //        return svc.updateUser(id, dto);
 //    }
 
+    @GetMapping("/properties/all")
+    public String getAllProperties(Model model) {
+        List<PropertyDTO> properties  =hostService.getAllProperties();
+        String roleName =  hostService.getRoleName();
+        model.addAttribute("role", roleName);
+        model.addAttribute("properties", properties);
+        return "all-properties-list";
+
+    }
+    @GetMapping("/properties/{id}/details")
+    public String getPropertyDetails(@PathVariable Integer id, Model model) {
+        PropertyDTO property = hostService.getPropertyById(id);
+        String roleName = hostService.getRoleName();
+        String hostId = property.getHostId();
+        User user= svc.fetchByFirebaseUid(hostId);
+        model.addAttribute("firstname", user.getFirstName());
+        model.addAttribute("lastname", user.getLastName());
+        model.addAttribute("role", roleName);
+        model.addAttribute("property", property);
+        return "property-details";
+    }
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

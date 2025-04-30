@@ -19,10 +19,11 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping
-    @RateLimit(limit = 3, duration = 60, keyPrefix = "createBooking")
-    public ResponseEntity<Booking> createBooking(@RequestBody @Valid CreateBookingDTO dto) {
-        return ResponseEntity.ok(bookingService.createBooking(dto));
+    @PostMapping("/create")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "createBooking")
+    public ResponseEntity<String> createBooking(@RequestBody @Valid CreateBookingDTO dto) {
+        bookingService.createBooking(dto);
+        return ResponseEntity.ok( "Booking created successfully");
     }
 
     @GetMapping
@@ -31,7 +32,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     @RateLimit(limit = 80, duration = 60, keyPrefix = "getBookingById")
     public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getBookingById(id));
@@ -39,7 +40,7 @@ public class BookingController {
 
     @GetMapping("/user/{userId}")
     @RateLimit(limit = 80, duration = 60, keyPrefix = "getBookingsByUserId")
-    public ResponseEntity<List<Booking>> getBookingsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<Booking>> getBookingsByUserId(@PathVariable String userId) {
         return ResponseEntity.ok(bookingService.getBookingsByGuestId(userId));
     }
 
@@ -51,7 +52,7 @@ public class BookingController {
 
     @GetMapping("/profit/user/{userId}")
     @RateLimit(limit = 80, duration = 60, keyPrefix = "getTotalProfitByUserId")
-    public ResponseEntity<Double> getTotalProfitByUser(@PathVariable Long userId) {
+    public ResponseEntity<Double> getTotalProfitByUser(@PathVariable String userId) {
         return ResponseEntity.ok(bookingService.getTotalProfitByUserId(userId));
     }
 
@@ -80,7 +81,7 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/cancel")
-    @RateLimit(limit = 3, duration = 60, keyPrefix = "cancelBooking")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "cancelBooking")
     public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.cancelBooking(id));
     }

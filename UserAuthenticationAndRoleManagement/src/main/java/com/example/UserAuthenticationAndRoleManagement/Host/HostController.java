@@ -1,6 +1,8 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +17,7 @@ import java.util.List;
 @RequestMapping("/host")
 public class HostController {
     private final HostService hostService;
-
+private  static final Logger LOGGER = LoggerFactory.getLogger(HostController.class);
     @Autowired
     public HostController(HostService hostService) {
         this.hostService = hostService;
@@ -50,9 +52,8 @@ public class HostController {
 //        if (result.hasErrors()) {
 //            return "add-property-form";
 //        }
-        System.out.println("CREATED NEW PROPP: "+ dto);
+
         String hostId = getHostIdFromPrincipal(principal);
-        System.out.println("Host ID: " + hostId);
         dto.setHostId(hostId); // ➡️ Important! Set hostId here, not from form.
         hostService.createProperty(dto);
         redirectAttributes.addFlashAttribute("success", "Property created successfully!");
@@ -71,7 +72,7 @@ public class HostController {
         if (result.hasErrors()) {
             return "edit-property-form";
         }
-
+        LOGGER.info("Updating property with booked status: {}", dto.getBooked());
         dto.setHostId(getHostIdFromPrincipal(principal)); // enforce correct host
         hostService.updateProperty(propertyId, dto);
         redirectAttributes.addFlashAttribute("success", "Property updated successfully!");
@@ -88,6 +89,15 @@ List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
         model.addAttribute("properties", properties);
         return "host-properties";
     }
+
+    @GetMapping("/properties/{id}/delete")
+    public String deleteProperty(@PathVariable("id") Integer propertyId,
+                                 RedirectAttributes redirectAttributes) {
+        hostService.deleteProperty(propertyId);
+        redirectAttributes.addFlashAttribute("success", "Property deleted successfully!");
+        return "redirect:/host/properties";
+    }
+
 //    private FirebasePrincipal getFirebasePrincipal(Authentication auth) {
 //        if (auth.getPrincipal() instanceof FirebasePrincipal fp) {
 //            return fp;

@@ -13,7 +13,7 @@ public class Booking {
 
     private long propertyId;
 
-    private long guestId;
+    private String guestId;
 
     @Temporal(TemporalType.DATE)
     private Date checkIn;
@@ -51,11 +51,11 @@ public class Booking {
         this.propertyId = propertyId;
     }
 
-    public long getGuestId() {
+    public String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(long guestId) {
+    public void setGuestId(String guestId) {
         this.guestId = guestId;
     }
 

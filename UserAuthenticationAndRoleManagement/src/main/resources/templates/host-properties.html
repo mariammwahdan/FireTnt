@@ -32,6 +32,10 @@
                class="inline-block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4">
                 Edit Property
             </a>
+            <a th:href="@{/host/properties/{id}/delete(id=${prop.propertyId})}"
+               class="inline-block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4">
+                Delete Property
+            </a>
 
         </div>
     </div>

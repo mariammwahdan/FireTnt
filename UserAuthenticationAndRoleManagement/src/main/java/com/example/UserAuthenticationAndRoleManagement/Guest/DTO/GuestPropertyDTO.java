@@ -1,4 +1,4 @@
-package com.example.UserAuthenticationAndRoleManagement.Host.DTO;
+package com.example.UserAuthenticationAndRoleManagement.Guest.DTO;
 
 
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PropertyDTO {
+public class GuestPropertyDTO {
 
     // Property ID
     private long propertyId;
@@ -20,9 +20,9 @@ public class PropertyDTO {
 
 
     // Constructors
-    public PropertyDTO() {
+    public GuestPropertyDTO() {
     }
-    public PropertyDTO( long propertyId,String title, String description, double pricePerNight, boolean booked, String hostId) {
+    public GuestPropertyDTO( long propertyId,String title, String description, double pricePerNight, boolean booked, String hostId) {
         this.propertyId = propertyId;
         this.title = title;
         this.description = description;
@@ -32,7 +32,7 @@ public class PropertyDTO {
     }
 
     // Getters & Setters
-public boolean getBooked() {
+    public boolean getBooked() {
         return this.booked;
     }
 
