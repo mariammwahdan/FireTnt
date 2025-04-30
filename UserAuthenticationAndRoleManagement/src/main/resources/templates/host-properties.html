@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>My Listings</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,8 +28,11 @@
             <p class="text-sm text-gray-500">
                 Price: $<span th:text="${prop.pricePerNight}"></span>
             </p>
-            <a th:href="@{/host/properties/edit/{id}(id=${prop.propertyId})}"  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center mb-5">update property
+            <a th:href="@{/host/properties/edit/{id}(id=${prop.propertyId})}"
+               class="inline-block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4">
+                Edit Property
             </a>
+
         </div>
     </div>
 </div>

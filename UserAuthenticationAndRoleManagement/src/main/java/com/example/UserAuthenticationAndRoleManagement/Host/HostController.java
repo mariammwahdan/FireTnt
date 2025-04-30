@@ -1,19 +1,12 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
-import com.example.UserAuthenticationAndRoleManagement.User.User;
-import com.example.UserAuthenticationAndRoleManagement.User.UserRepository;
-import com.example.UserAuthenticationAndRoleManagement.User.UserService;
-import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import jakarta.validation.Valid;
-import org.apache.catalina.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.security.Principal;
 import java.util.List;
 
@@ -26,19 +19,20 @@ public class HostController {
     @Autowired
     public HostController(HostService hostService) {
         this.hostService = hostService;
+       // this.userService = userService;
 
     }
     @GetMapping("/properties/create")
-    public String showCreatePropertyForm(Model model, Principal principal) {
-String roleName = hostService.getRoleNameFromPrincipal(principal); // You need to pass the principal here
-            model.addAttribute("role", roleName);
-            model.addAttribute("propertyForm", new PropertyDTO());
+    public String showCreatePropertyForm(Model model) {
+        String roleName = hostService.getRoleName();
+        model.addAttribute("role", roleName);
+        model.addAttribute("propertyForm", new PropertyDTO());
         return "add-property-form";
     }
     @GetMapping("/properties/edit/{id}")
-    public String showUpdatePropertyForm(@PathVariable("id") Integer propertyId, Model model, Principal principal) {
+    public String showUpdatePropertyForm(@PathVariable("id") Integer propertyId, Model model) {
         PropertyDTO property = hostService.getPropertyById(propertyId);
-        String roleName = hostService.getRoleNameFromPrincipal(principal);
+        String roleName = hostService.getRoleName();
         model.addAttribute("propertyId", propertyId);
         model.addAttribute("role", roleName);
         model.addAttribute("propertyForm", property);
@@ -87,13 +81,18 @@ String roleName = hostService.getRoleNameFromPrincipal(principal); // You need t
 
     @GetMapping("/properties")
     public String viewHostProperties(Model model, Principal principal) {
-        String hostId = getHostIdFromPrincipal(principal); // You must implement this based on your user system
-        List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
-
-        String roleName = hostService.getRoleNameFromPrincipal(principal); // You need to pass the principal here
-
+        String hostId = getHostIdFromPrincipal(principal);
+List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
+        String roleName =  hostService.getRoleName();
         model.addAttribute("role", roleName);
         model.addAttribute("properties", properties);
-        return "host-properties"; // your Thymeleaf HTML
+        return "host-properties";
     }
+//    private FirebasePrincipal getFirebasePrincipal(Authentication auth) {
+//        if (auth.getPrincipal() instanceof FirebasePrincipal fp) {
+//            return fp;
+//        }
+//        throw new IllegalStateException("Invalid authentication principal");
+//    }
+
 }

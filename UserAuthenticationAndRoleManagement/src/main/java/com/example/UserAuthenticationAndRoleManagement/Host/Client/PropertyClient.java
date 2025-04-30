@@ -21,10 +21,6 @@ public class PropertyClient {
 
    private final String propertyServiceUrl = "http://localhost:8082/api/properties";
 
-    public List<PropertyDTO> getAllProperties() {
-        PropertyDTO[] propertiesArray = restTemplate.getForObject(propertyServiceUrl, PropertyDTO[].class);
-        return List.of(propertiesArray);
-    }
     public List<PropertyDTO> getPropertiesByHostId(String hostId) {
         String url = propertyServiceUrl + "/host/" + hostId;
 

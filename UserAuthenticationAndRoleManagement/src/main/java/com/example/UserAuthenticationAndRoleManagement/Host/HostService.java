@@ -1,11 +1,7 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
 
-
-import com.example.UserAuthenticationAndRoleManagement.Config.RestTemplateConfig;
 import com.example.UserAuthenticationAndRoleManagement.Host.Client.PropertyClient;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
-import com.example.UserAuthenticationAndRoleManagement.User.User;
-import com.example.UserAuthenticationAndRoleManagement.User.UserRepository;
 import com.example.UserAuthenticationAndRoleManagement.User.UserService;
 import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.Principal;
-import java.util.Arrays;
+
 import java.util.List;
 
 @Service
 public class HostService {
     private final RestTemplate restTemplate;
     private final PropertyClient propertyClient;
-    private static final String PROPERTY_SERVICE_URL = "http://localhost:8082/api/properties";
     UserService userService;
 
     @Autowired
@@ -38,15 +33,19 @@ public class HostService {
         }
         throw new IllegalStateException("Invalid principal type");
     }
+public String getRoleName(){
+        return userService.getRoleName();
+}
 
+//    public String getRoleNameFromPrincipal() {
+//        var auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth != null && auth.getPrincipal() instanceof FirebasePrincipal fp) {
+//            User user = userService.findByEmail(fp.getEmail());
+//            return user.getRole().name();
+//        }
+//        throw new IllegalStateException("No valid FirebasePrincipal in context");
+//    }
 
-    public String getRoleNameFromPrincipal(Principal principal) {
-        if (principal instanceof FirebasePrincipal fp) {
-            User user = userService.findByEmail(fp.getEmail());
-            return user.getRole().name();
-        }
-        return "GUEST"; // fallback
-    }
 
     // ###################################################
 

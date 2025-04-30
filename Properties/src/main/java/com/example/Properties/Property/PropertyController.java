@@ -22,25 +22,12 @@ public class PropertyController {
         this.propertyService = propertyService;
     }
 
-//    @GetMapping("/create")
-//    public String showAddForm(Model model) {
-//        model.addAttribute("propertyForm", new CreatePropertyDTO());
-//    return "add-property-form"    ;
-//    }
-//    @PostMapping("/create")
-//    public String createProperty(@Valid CreatePropertyDTO dto,
-//                                                   BindingResult result,
-//                                                   RedirectAttributes redirectAttributes) {
-//        propertyService.createProperty(dto);
-//        redirectAttributes.addFlashAttribute("success", "Property created successfully!");
-//        return "redirect:/api/properties/all";
-//    }
-@PostMapping("/create")
-@ResponseBody
-public ResponseEntity<String> createPropertyApi(@RequestBody @Valid CreatePropertyDTO dto) {
-    propertyService.createProperty(dto);
-    return ResponseEntity.ok("Property created successfully");
-}
+    @PostMapping("/create")
+    @ResponseBody
+    public ResponseEntity<String> createPropertyApi(@RequestBody @Valid CreatePropertyDTO dto) {
+        propertyService.createProperty(dto);
+        return ResponseEntity.ok("Property created successfully");
+    }
 
 
     @GetMapping("/all")
@@ -111,15 +98,15 @@ public ResponseEntity<String> createPropertyApi(@RequestBody @Valid CreateProper
         model.addAttribute("property", property);
         return "property-details";
     }
-@GetMapping("/{id}")
-@ResponseBody
-public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
-    Property property = propertyService.getPropertyById(id);
-    if (property == null) {
-        System.out.println("NULL PROPERTY");
+    @GetMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
+        Property property = propertyService.getPropertyById(id);
+        if (property == null) {
+            System.out.println("NULL PROPERTY");
+        }
+        return ResponseEntity.ok(property);
     }
-    return ResponseEntity.ok(property);
-}
 
     @PutMapping("/{id}/update")
     public ResponseEntity<Property> updateProperty(@PathVariable Integer id, @RequestBody UpdatePropertyDTO dto) {
