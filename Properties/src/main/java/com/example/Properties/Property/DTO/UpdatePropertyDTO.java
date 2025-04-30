@@ -18,7 +18,7 @@ public class UpdatePropertyDTO {
    // @Positive(message = "Host ID must be a positive number")
     private String hostId;
 
-    private Boolean isBooked;
+    private boolean booked;
 
     // Getters and Setters
 
@@ -54,12 +54,12 @@ public class UpdatePropertyDTO {
         this.hostId = hostId;
     }
 
-    public Boolean getIsBooked() {
-        return isBooked;
+    public boolean getBooked() {
+        return booked;
     }
 
-    public void setIsBooked(Boolean isBooked) {
-        this.isBooked = isBooked;
+    public void setBooked(boolean booked) {
+        this.booked = booked;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UpdatePropertyDTO {
                 ", description='" + description + '\'' +
                 ", pricePerNight=" + pricePerNight +
                 ", hostId=" + hostId +
-                ", isBooked=" + isBooked +
+                ", Booked=" + booked +
                 '}';
     }
 }

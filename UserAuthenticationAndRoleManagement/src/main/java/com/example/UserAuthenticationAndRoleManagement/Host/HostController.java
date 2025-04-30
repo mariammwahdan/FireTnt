@@ -1,6 +1,8 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +17,7 @@ import java.util.List;
 @RequestMapping("/host")
 public class HostController {
     private final HostService hostService;
-
+private  static final Logger LOGGER = LoggerFactory.getLogger(HostController.class);
     @Autowired
     public HostController(HostService hostService) {
         this.hostService = hostService;
@@ -71,7 +73,7 @@ public class HostController {
         if (result.hasErrors()) {
             return "edit-property-form";
         }
-
+        LOGGER.info("Updating property with booked status: {}", dto.getBooked());
         dto.setHostId(getHostIdFromPrincipal(principal)); // enforce correct host
         hostService.updateProperty(propertyId, dto);
         redirectAttributes.addFlashAttribute("success", "Property updated successfully!");

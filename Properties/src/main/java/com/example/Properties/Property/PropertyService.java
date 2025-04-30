@@ -134,7 +134,7 @@ public class PropertyService {
         if (dto.getTitle() != null) property.setTitle(dto.getTitle());
         if (dto.getDescription() != null) property.setDescription(dto.getDescription());
         if (dto.getPricePerNight() != null) property.setPricePerNight(dto.getPricePerNight());
-        if (dto.getIsBooked() != null) property.setBooked(dto.getIsBooked());
+        property.setBooked(dto.getBooked());
         if (dto.getHostId() != null) property.setHostId(dto.getHostId());
 
         Property updated= propertyRepository.save(property);
