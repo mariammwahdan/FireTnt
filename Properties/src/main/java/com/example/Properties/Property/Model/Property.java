@@ -13,14 +13,24 @@ public class Property {
     private double pricePerNight;
     private boolean isBooked;
 
-    private Long hostId; // Foreign key reference to User Microservice
+    private String hostId; // Foreign key reference to User Microservice
 
+public Property() {
 
+}
+    public Property(long propertyId, String title, String description, double pricePerNight, boolean isBooked, String hostId) {
+        this.propertyId = propertyId;
+        this.title = title;
+        this.description = description;
+        this.pricePerNight = pricePerNight;
+        this.isBooked = isBooked;
+        this.hostId = hostId;
+    }
     public long getPropertyId() {
         return propertyId;
     }
 
-    public void setPropertyId(Integer propertyId) {
+    public void setPropertyId(long propertyId) {
         this.propertyId = propertyId;
     }
 
@@ -56,11 +66,11 @@ public class Property {
         this.isBooked = isBooked;
     }
 
-    public Long getHostId() {
+    public String getHostId() {
         return hostId;
     }
 
-    public void setHostId(Long hostId) {
+    public void setHostId(String hostId) {
         this.hostId = hostId;
     }
 }

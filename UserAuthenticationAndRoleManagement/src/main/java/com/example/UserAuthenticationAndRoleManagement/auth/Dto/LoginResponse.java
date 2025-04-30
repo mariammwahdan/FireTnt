@@ -6,17 +6,17 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LoginResponse {
-    private Long   userId;
+    private String   userFirebaseId;
     private String email;
     private String idToken;
     private String refreshToken;
 
-    public Long getUserId() {
-        return userId;
+    public String getuserFirebaseId() {
+        return userFirebaseId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setuserFirebaseId(String userFirebaseId) {
+        this.userFirebaseId = userFirebaseId;
     }
 
     public String getEmail() {

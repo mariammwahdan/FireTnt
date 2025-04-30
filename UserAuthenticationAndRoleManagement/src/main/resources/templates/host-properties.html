@@ -1,19 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>My Listings</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="p-10">
-<h2 class="text-2xl font-bold mb-6">My Property Listings</h2>
+<body class="bg-gray-100 min-h-screen pt-20 px-6">
 
-<div th:if="${properties.size() == 0}" class="text-gray-600">You have no properties yet.</div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div th:each="prop : ${properties}" class="p-4 shadow border rounded">
-        <h3 class="text-lg font-semibold" th:text="${prop.title}">Property Title</h3>
-        <p th:text="${prop.description}"></p>
-        <p class="text-sm text-gray-500">Price: $<span th:text="${prop.pricePerNight}"></span></p>
+<!-- Navbar -->
+<div th:replace="fragments/navbar :: navbar(role=${role})" class="fixed top-0 left-0 right-0 z-50"></div>
+
+
+<!-- Container -->
+<div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6 text-center">My Property Listings</h2>
+    <a th:href="@{/host/properties/create}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center mb-5">
+        + Add New Property
+    </a>
+    <div th:if="${properties.size() == 0}" class="text-center text-gray-600 mb-6">You have no properties yet.</div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+
+        <!-- Existing Properties -->
+        <div th:each="prop : ${properties}" class="p-4 shadow-md bg-white border rounded-lg">
+            <h3 class="text-lg font-bold mb-1" th:text="${prop.title}">Property Title</h3>
+            <p class="mb-2 text-sm text-gray-700" th:text="${prop.description}">Property description</p>
+            <p class="text-sm text-gray-500">
+                Price: $<span th:text="${prop.pricePerNight}"></span>
+            </p>
+            <a th:href="@{/host/properties/edit/{id}(id=${prop.propertyId})}"
+               class="inline-block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4">
+                Edit Property
+            </a>
+
+        </div>
     </div>
 </div>
 </body>

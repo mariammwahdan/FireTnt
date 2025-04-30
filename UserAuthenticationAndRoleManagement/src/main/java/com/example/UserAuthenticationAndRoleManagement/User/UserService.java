@@ -89,6 +89,7 @@ import com.example.UserAuthenticationAndRoleManagement.User.Client.NotificationC
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.CreateUserDTO;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.NotificationDto;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.UpdateUserDTO;
+import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
@@ -96,6 +97,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -291,6 +294,22 @@ public class UserService {
                 .map(notifClient::fetchById)
                 .toList();
     }
+    public String getCurrentFirebaseUid() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+        if (auth != null && auth.getPrincipal() instanceof FirebasePrincipal fp) {
+            return fp.getUid(); // ✅ This is your Firebase UID
+        }
+
+        throw new IllegalStateException("User is not authenticated or invalid principal");
+    }
+    public String getRoleName(){
+       long userId= findUserIdByFirebaseUid(getCurrentFirebaseUid());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found"
+                ));
+        return user.getRole().name();
+    }
 
 }

@@ -15,8 +15,8 @@ public class UpdatePropertyDTO {
     @Positive(message = "Price per night must be a positive number")
     private Double pricePerNight;
 
-    @Positive(message = "Host ID must be a positive number")
-    private Long hostId;
+   // @Positive(message = "Host ID must be a positive number")
+    private String hostId;
 
     private Boolean isBooked;
 
@@ -46,11 +46,11 @@ public class UpdatePropertyDTO {
         this.pricePerNight = pricePerNight;
     }
 
-    public Long getHostId() {
+    public String getHostId() {
         return hostId;
     }
 
-    public void setHostId(Long hostId) {
+    public void setHostId(String hostId) {
         this.hostId = hostId;
     }
 

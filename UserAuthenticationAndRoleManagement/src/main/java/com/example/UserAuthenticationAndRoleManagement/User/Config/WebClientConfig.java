@@ -16,10 +16,5 @@ public class WebClientConfig {
                 .baseUrl(baseUrl)
                 .build();
     }
-    @Bean
-    public WebClient propertyWebClient() {
-        return WebClient.builder()
-                .baseUrl("http://localhost:8082/api/properties") // Property Microservice URL
-                .build();
-    }
+
 }

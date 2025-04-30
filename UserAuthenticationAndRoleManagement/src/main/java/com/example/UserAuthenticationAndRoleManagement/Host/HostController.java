@@ -1,21 +1,12 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
-
-
-import com.example.UserAuthenticationAndRoleManagement.Host.DTO.CreatePropertyDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
-import com.example.UserAuthenticationAndRoleManagement.User.UserRepository;
-import com.example.UserAuthenticationAndRoleManagement.User.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.security.Principal;
 import java.util.List;
 
@@ -23,44 +14,85 @@ import java.util.List;
 @Controller
 @RequestMapping("/host")
 public class HostController {
-
     private final HostService hostService;
-   // private final UserRepository userRepo;
 
     @Autowired
     public HostController(HostService hostService) {
         this.hostService = hostService;
-    }
+       // this.userService = userService;
 
-    @GetMapping("/properties")
-    public String viewHostProperties(Model model, Principal principal) {
-        Long hostId = getHostIdFromPrincipal(principal); // You must implement this based on your user system
-        List<?> properties = hostService.getPropertiesForHost(hostId);
-        model.addAttribute("properties", properties);
-        return "host-properties"; // your Thymeleaf HTML
     }
     @GetMapping("/properties/create")
     public String showCreatePropertyForm(Model model) {
-        model.addAttribute("propertyForm", new CreatePropertyDTO());
+        String roleName = hostService.getRoleName();
+        model.addAttribute("role", roleName);
+        model.addAttribute("propertyForm", new PropertyDTO());
         return "add-property-form";
     }
+    @GetMapping("/properties/edit/{id}")
+    public String showUpdatePropertyForm(@PathVariable("id") Integer propertyId, Model model) {
+        PropertyDTO property = hostService.getPropertyById(propertyId);
+        String roleName = hostService.getRoleName();
+        model.addAttribute("propertyId", propertyId);
+        model.addAttribute("role", roleName);
+        model.addAttribute("propertyForm", property);
+        return "edit-property-form";
+    }
 
+    //#############################################################
+
+    // End points that call the Property Service
     @PostMapping("/properties/create")
-    public String createProperty(@Valid @ModelAttribute("propertyForm") CreatePropertyDTO dto,
+    public String createProperty(@Valid @ModelAttribute("propertyForm") PropertyDTO dto,
                                  BindingResult result,
                                  RedirectAttributes redirectAttributes,
-                                 RedirectAttributes redirectAttribute,Principal principal) {
-        if (result.hasErrors()) {
-            return "add-property-form";
-        }
-        Long hostId = getHostIdFromPrincipal(principal);
+                                 Principal principal) {
+//        if (result.hasErrors()) {
+//            return "add-property-form";
+//        }
+        System.out.println("CREATED NEW PROPP: "+ dto);
+        String hostId = getHostIdFromPrincipal(principal);
+        System.out.println("Host ID: " + hostId);
         dto.setHostId(hostId); // ➡️ Important! Set hostId here, not from form.
         hostService.createProperty(dto);
         redirectAttributes.addFlashAttribute("success", "Property created successfully!");
         return "redirect:/host/properties";
     }
-    private Long getHostIdFromPrincipal(Principal principal) {
+    private String getHostIdFromPrincipal(Principal principal) {
         // Extract user ID from FirebasePrincipal or session
-        return 111L; // Example for testing
+        return hostService.getUidFromPrincipal(principal); // Example for testing
     }
+    @PostMapping("/properties/edit/{id}")
+    public String updateProperty(@PathVariable("id") Integer propertyId,
+                                 @Valid @ModelAttribute("propertyForm") PropertyDTO dto,
+                                 BindingResult result,
+                                 RedirectAttributes redirectAttributes,
+                                 Principal principal) {
+        if (result.hasErrors()) {
+            return "edit-property-form";
+        }
+
+        dto.setHostId(getHostIdFromPrincipal(principal)); // enforce correct host
+        hostService.updateProperty(propertyId, dto);
+        redirectAttributes.addFlashAttribute("success", "Property updated successfully!");
+        return "redirect:/host/properties";
+    }
+
+
+    @GetMapping("/properties")
+    public String viewHostProperties(Model model, Principal principal) {
+        String hostId = getHostIdFromPrincipal(principal);
+List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
+        String roleName =  hostService.getRoleName();
+        model.addAttribute("role", roleName);
+        model.addAttribute("properties", properties);
+        return "host-properties";
+    }
+//    private FirebasePrincipal getFirebasePrincipal(Authentication auth) {
+//        if (auth.getPrincipal() instanceof FirebasePrincipal fp) {
+//            return fp;
+//        }
+//        throw new IllegalStateException("Invalid authentication principal");
+//    }
+
 }
