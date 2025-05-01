@@ -33,12 +33,14 @@ public class GuestController {
     }
 
     @GetMapping("/properties/{propertyId}/book")
-    public String showBookingForm(@PathVariable Integer propertyId, Model model, Principal principal) {
+    public String showBookingForm(@PathVariable Long propertyId, Model model, Principal principal) {
         BookingDTO bookingForm = new BookingDTO();
         bookingForm.setPropertyId(propertyId);
         GuestPropertyDTO property = guestService.getPropertyById(propertyId);
         String guestId =hostService.getUidFromPrincipal(principal);
         String roleName = hostService.getRoleName();
+        List<String> unavailableDates = guestService.getUnavailableDatesForProperty(propertyId);
+        model.addAttribute("unavailableDates", unavailableDates);
         model.addAttribute("pricePerNight", property.getPricePerNight());
         model.addAttribute("property", property);
         model.addAttribute("bookingForm", bookingForm);

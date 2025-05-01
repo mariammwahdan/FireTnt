@@ -30,7 +30,7 @@ public GuestPropertyDTO getPropertyById(long propertyId) {
     }
     public  void createBooking(BookingDTO bookingDTO) {
         bookingAndPaymentClient.createBooking(bookingDTO);
-        markPropertyAsBooked(bookingDTO.getPropertyId());
+      //  markPropertyAsBooked(bookingDTO.getPropertyId());
     }
     public void markPropertyAsBooked(Long propertyId) {
         GuestPropertyDTO property = guestPropertyClient.getPropertyById(propertyId);
@@ -40,11 +40,14 @@ public GuestPropertyDTO getPropertyById(long propertyId) {
     public void cancelBooking(Long bookingId) {
         BookingDTO cancelledBooking = bookingAndPaymentClient.cancelBooking(bookingId);
 
-        // 2. Update the property to set booked = false
-        GuestPropertyDTO property = guestPropertyClient.getPropertyById(cancelledBooking.getPropertyId());
-        property.setBooked(false);
-         guestPropertyClient.updateProperty(property.getPropertyId(), property);
-
-
+//        // 2. Update the property to set booked = false
+//        GuestPropertyDTO property = guestPropertyClient.getPropertyById(cancelledBooking.getPropertyId());
+//        property.setBooked(false);
+//         guestPropertyClient.updateProperty(property.getPropertyId(), property);
+  }
+    public List<String> getUnavailableDatesForProperty(Long propertyId) {
+        return bookingAndPaymentClient.getBookedDatesByPropertyId(propertyId);
     }
+
+
 }

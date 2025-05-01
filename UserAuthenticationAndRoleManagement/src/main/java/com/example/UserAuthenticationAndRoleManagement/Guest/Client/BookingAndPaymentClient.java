@@ -47,5 +47,18 @@ String url = bookingServiceUrl + "/create";
         );
         return response.getBody();
     }
+    public List<String> getBookedDatesByPropertyId(Long propertyId) {
+        String url = bookingServiceUrl + "/property/" + propertyId + "/booked-dates";
+
+        ResponseEntity<List<String>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<String>>() {}
+        );
+
+        return response.getBody();
+    }
+
 
 }

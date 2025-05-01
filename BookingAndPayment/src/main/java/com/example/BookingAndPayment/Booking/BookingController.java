@@ -25,6 +25,28 @@ public class BookingController {
         bookingService.createBooking(dto);
         return ResponseEntity.ok( "Booking created successfully");
     }
+    @GetMapping("/property/{propertyId}/booked-dates")
+    public ResponseEntity<List<String>> getBookedDates(@PathVariable Long propertyId) {
+        List<Booking> bookings = bookingService.getBookingsByPropertyId(propertyId);
+
+        List<String> bookedDates = bookings.stream()
+                .filter(b -> b.getStatus() == Booking.BookingStatus.ACTIVE)
+                .flatMap(b -> {
+                    List<String> range = new java.util.ArrayList<>();
+                    java.util.Calendar date = java.util.Calendar.getInstance();
+                    date.setTime(b.getCheckIn());
+                    while (!date.getTime().after(b.getCheckOut())) {
+                        range.add(new java.text.SimpleDateFormat("yyyy-MM-dd").format(date.getTime()));
+                        date.add(java.util.Calendar.DATE, 1);
+                    }
+                    return range.stream();
+                })
+                .distinct()
+                .toList();
+
+        return ResponseEntity.ok(bookedDates);
+    }
+
 
     @GetMapping
     @RateLimit(limit = 80, duration = 60, keyPrefix = "getAllBookings")
