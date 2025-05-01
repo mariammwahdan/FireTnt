@@ -1,8 +1,4 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest;
-
-import com.example.BookingAndPayment.Aspects.LoggingAspect;
-import com.example.BookingAndPayment.Booking.Booking;
-import com.example.BookingAndPayment.Booking.DTO.CreateBookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.BookingAndPaymentClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.GuestPropertyClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
@@ -29,10 +25,10 @@ public class GuestService {
 public GuestPropertyDTO getPropertyById(long propertyId) {
         return guestPropertyClient.getPropertyById(propertyId);
     }
-    public List<Booking> getBookingsByGuestId(String guestId) {
+    public List<BookingDTO> getBookingsByGuestId(String guestId) {
         return bookingAndPaymentClient.getBookingsByGuestId(guestId);
     }
-    public  void createBooking(CreateBookingDTO bookingDTO) {
+    public  void createBooking(BookingDTO bookingDTO) {
         bookingAndPaymentClient.createBooking(bookingDTO);
         markPropertyAsBooked(bookingDTO.getPropertyId());
     }
@@ -41,7 +37,14 @@ public GuestPropertyDTO getPropertyById(long propertyId) {
         property.setBooked(true);
         guestPropertyClient.updateProperty(propertyId, property);
     }
-    public CreateBookingDTO cancelBooking(Long bookingId) {
-        return bookingAndPaymentClient.cancelBooking(bookingId);
+    public void cancelBooking(Long bookingId) {
+        BookingDTO cancelledBooking = bookingAndPaymentClient.cancelBooking(bookingId);
+
+        // 2. Update the property to set booked = false
+        GuestPropertyDTO property = guestPropertyClient.getPropertyById(cancelledBooking.getPropertyId());
+        property.setBooked(false);
+         guestPropertyClient.updateProperty(property.getPropertyId(), property);
+
+
     }
 }

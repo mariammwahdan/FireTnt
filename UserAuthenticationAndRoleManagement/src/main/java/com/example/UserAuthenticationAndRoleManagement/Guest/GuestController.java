@@ -1,7 +1,4 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest;
-
-import com.example.BookingAndPayment.Booking.Booking;
-import com.example.BookingAndPayment.Booking.DTO.CreateBookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.GuestBookingViewDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.GuestPropertyDTO;
@@ -17,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/guest")
@@ -48,7 +47,7 @@ public class GuestController {
         return "select-booking-dates"; // Thymeleaf template
     }
     @PostMapping("/properties/{propertyId}/book")
-    public String bookProperty(@Valid @ModelAttribute("bookingForm") CreateBookingDTO dto,
+    public String bookProperty(@Valid @ModelAttribute("bookingForm") BookingDTO dto,
                                BindingResult result,
                                @PathVariable Integer propertyId,
                                Model model,
@@ -70,15 +69,22 @@ public class GuestController {
     @GetMapping("/bookings")
     public String showBookings(Model model, Principal principal) {
         String guestId = hostService.getUidFromPrincipal(principal);
-        List<Booking> bookings = guestService.getBookingsByGuestId(guestId);
+        List<BookingDTO> bookings = guestService.getBookingsByGuestId(guestId);
+
+        Map<Long, GuestPropertyDTO> propertyCache = new HashMap<>();
 
         List<GuestBookingViewDTO> viewDtos = bookings.stream()
                 .map(booking -> {
                     GuestBookingViewDTO dto = new GuestBookingViewDTO();
                     dto.setBooking(booking);
-                    GuestPropertyDTO property= guestService.getPropertyById(booking.getPropertyId());
+
+                    Long propId = booking.getPropertyId();
+                    GuestPropertyDTO property = propertyCache.computeIfAbsent(propId,
+                            id -> guestService.getPropertyById(id));
+
                     dto.setPropertyTitle(property.getTitle());
                     dto.setPropertyDescription(property.getDescription());
+
                     return dto;
                 }).toList();
 
@@ -86,6 +92,7 @@ public class GuestController {
         model.addAttribute("role", "GUEST");
         return "guest-reservations";
     }
+
     @PostMapping("/bookings/{bookingId}/cancel")
     public String cancelBooking(@PathVariable Long bookingId, Principal principal) {
         guestService.cancelBooking(bookingId);

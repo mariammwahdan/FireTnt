@@ -27,13 +27,13 @@
       <p class="text-sm" th:classappend="${booking.getBooking().status.name() == 'CANCELLED'} ? 'text-red-600' : 'text-green-600'">
         Status: <span th:text="${booking.getBooking().status}"></span>
       </p>
-      <form th:if="${booking.booking.status.name() != 'CANCELLED'}"
-            th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.id})}" method="post">
-        <button type="submit"
-                class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4">
-          Cancel Booking
-        </button>
-      </form>
+<!--      <form th:if="${booking.booking.status.name() != 'CANCELLED'}"-->
+<!--            th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.id})}" method="post">-->
+<!--        <button type="submit"-->
+<!--                class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4">-->
+<!--          Cancel Booking-->
+<!--        </button>-->
+<!--      </form>-->
 
       <!-- Cancel button only if not already cancelled -->
 
