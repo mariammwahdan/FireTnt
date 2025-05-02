@@ -1,5 +1,6 @@
 package com.example.Properties.Property;
 
+import com.example.Properties.PaymentAndBookingClient;
 import com.example.Properties.Property.DTO.*;
 import com.example.Properties.Property.Model.Property;
 import com.example.Properties.Redis.RedisClient;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 public class PropertyService {
+    private PaymentAndBookingClient paymentAndBookingClient;
     private ReviewsClient reviewClient; // You said you created ReviewClient already
     private static final Logger log = LoggerFactory.getLogger(PropertyService.class); // Add logger
     private final PropertyRepository propertyRepository;
@@ -26,9 +28,10 @@ public class PropertyService {
     private static final String ALL_PROPERTIES_CACHE_KEY = "properties:all";
     private static final Duration CACHE_TTL = Duration.ofMinutes(10); // Define cache TTL (e.g., 10 minutes)
     @Autowired
-    public PropertyService(PropertyRepository propertyRepository, ReviewsClient reviewClient) {
+    public PropertyService(PropertyRepository propertyRepository, ReviewsClient reviewClient , PaymentAndBookingClient paymentAndBookingClient) {
         this.propertyRepository = propertyRepository;
         this.reviewClient = reviewClient;
+        this.paymentAndBookingClient = paymentAndBookingClient;
     }
 
     public Property createProperty(CreatePropertyDTO dto) {
@@ -163,6 +166,8 @@ public class PropertyService {
             throw new RuntimeException("Property not found");
         }
         propertyRepository.deleteById(id);
+        paymentAndBookingClient.deletBookingsByPropertyId(id);
+
         String propertyCacheKey = "property::" + id;
         try {
             redisClient.delete(propertyCacheKey); // Remove specific property cache

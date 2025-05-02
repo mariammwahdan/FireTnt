@@ -1,6 +1,8 @@
 package com.example.BookingAndPayment.Booking;
 import com.example.BookingAndPayment.Annotations.DistributedLock;
 import com.example.BookingAndPayment.Booking.DTO.CreateBookingDTO;
+import com.example.BookingAndPayment.Payment.PaymentRepository;
+import com.example.BookingAndPayment.Payment.PaymentService;
 import com.example.BookingAndPayment.Redis.RedisClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,23 +13,29 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
 
 @Service
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final PaymentRepository paymentRepository;
     private final RedisClient redisClient;
     private final ObjectMapper objectMapper;
 
     private static final String ALL_BOOKINGS_CACHE_KEY = "bookings:all";
     private static final Duration CACHE_TTL = Duration.ofMinutes(10);
     private static final String BOOKING_LOCK_PREFIX = "booking";
-
+    private final PaymentService paymentService;
+Logger logger = Logger.getLogger(BookingService.class.getName());
     @Autowired
-    public BookingService(BookingRepository bookingRepository, RedisClient redisClient, ObjectMapper objectMapper) {
+    public BookingService(BookingRepository bookingRepository, PaymentRepository paymentRepository, RedisClient redisClient, ObjectMapper objectMapper, PaymentService paymentService) {
         this.bookingRepository = bookingRepository;
+        this.paymentRepository = paymentRepository;
         this.redisClient = redisClient;
         this.objectMapper = objectMapper;
+        this.paymentService = paymentService;
     }
 
     public List<Booking> getAllBookings() {
@@ -146,5 +154,14 @@ public class BookingService {
         } catch (Exception e) {
            // log.error("[deleteProperty] Error invalidating cache for keys {} and {}: {}", propertyCacheKey, ALL_PROPERTIES_CACHE_KEY, e.getMessage());
         }
+    }
+    public void deleteAllBookingsForProperty(long propertyId) {
+        List<Booking> bookings = bookingRepository.findByPropertyId(propertyId);
+        for (Booking booking : bookings) {
+            bookingRepository.delete(booking);
+            paymentService.deleteByBookingId(booking.getId());
+            logger.info("Deleted booking with ID: " + booking.getId());
+        }
+        redisClient.delete(ALL_BOOKINGS_CACHE_KEY);
     }
 }
