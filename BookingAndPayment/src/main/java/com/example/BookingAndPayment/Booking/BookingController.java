@@ -21,9 +21,9 @@ public class BookingController {
 
     @PostMapping("/create")
     @RateLimit(limit = 80, duration = 60, keyPrefix = "createBooking")
-    public ResponseEntity<String> createBooking(@RequestBody @Valid CreateBookingDTO dto) {
-        bookingService.createBooking(dto);
-        return ResponseEntity.ok( "Booking created successfully");
+    public ResponseEntity<Long> createBooking(@RequestBody @Valid CreateBookingDTO dto) {
+        Long bookingId = bookingService.createBooking(dto);
+        return ResponseEntity.ok(bookingId);
     }
     @GetMapping("/property/{propertyId}/booked-dates")
     public ResponseEntity<List<String>> getBookedDates(@PathVariable Long propertyId) {
@@ -106,5 +106,12 @@ public class BookingController {
     @RateLimit(limit = 80, duration = 60, keyPrefix = "cancelBooking")
     public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.cancelBooking(id));
+    }
+
+    @DeleteMapping("/{id}")
+   // @RateLimit(limit = 80, duration = 60, keyPrefix = "deleteBooking")
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+        bookingService.deleteBooking(id);
+        return ResponseEntity.noContent().build();
     }
 }
