@@ -97,4 +97,19 @@ public class PaymentService {
         }
         return null;
     }
+    public boolean deletePayment(long id) {
+     paymentRepository.deleteById(id);
+        // 🧹 Invalidate cache after delete
+        return redisClient.delete(PAYMENT_CACHE_PREFIX + ":all");
+    }
+    public boolean deleteByBookingId(long bookingId) {
+        Payment payment = paymentRepository.findByBookingId(bookingId);
+        if (payment != null) {
+            paymentRepository.delete(payment);
+            // 🧹 Invalidate cache after delete
+            redisClient.delete(PAYMENT_CACHE_PREFIX + ":all");
+            return true;
+        }
+        return false;
+    }
 }

@@ -114,4 +114,11 @@ public class BookingController {
         bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }
+    @DeleteMapping("/property/{propertyId}")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "deleteBookingsByPropertyId")
+    public ResponseEntity<Void> deleteBookingsByPropertyId(@PathVariable Long propertyId) {
+        bookingService.deleteAllBookingsForProperty(propertyId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
