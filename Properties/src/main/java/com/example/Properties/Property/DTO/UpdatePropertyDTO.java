@@ -1,5 +1,6 @@
 package com.example.Properties.Property.DTO;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
@@ -15,6 +16,9 @@ public class UpdatePropertyDTO {
     @Positive(message = "Price per night must be a positive number")
     private Double pricePerNight;
 
+    private String location;
+
+    private String propertyType;
    // @Positive(message = "Host ID must be a positive number")
     private String hostId;
 
@@ -62,6 +66,18 @@ public class UpdatePropertyDTO {
         this.booked = booked;
     }
 
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    public String getPropertyType() {
+        return propertyType;
+    }
+    public void setPropertyType(String propertyType) {
+        this.propertyType = propertyType;
+    }
     @Override
     public String toString() {
         return "UpdatePropertyDTO{" +

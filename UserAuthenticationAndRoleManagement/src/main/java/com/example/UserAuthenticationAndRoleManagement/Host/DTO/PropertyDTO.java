@@ -16,18 +16,23 @@ public class PropertyDTO {
     private double pricePerNight;
     @Setter
     private boolean booked;
+    private String location;
+    private String propertyType;
     private String hostId;
 
 
     // Constructors
     public PropertyDTO() {
     }
-    public PropertyDTO( long propertyId,String title, String description, double pricePerNight, boolean booked, String hostId) {
+    public PropertyDTO( long propertyId,String title, String description, double pricePerNight, boolean booked,String location,String propertyType, String hostId) {
         this.propertyId = propertyId;
         this.title = title;
         this.description = description;
         this.pricePerNight = pricePerNight;
         this.booked = booked;
+        this.location = location;
+        this.propertyType = propertyType;
+
         this.hostId = hostId;
     }
 
