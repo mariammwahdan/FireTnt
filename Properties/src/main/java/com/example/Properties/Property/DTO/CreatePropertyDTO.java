@@ -17,6 +17,12 @@ public class CreatePropertyDTO {
     @NotNull(message = "Is booked status is required")
     private boolean isBooked;
 
+    @NotNull(message = "Location is required")
+    private String location;
+
+    @NotNull(message = "Property type is required")
+    private String propertyType;
+
 
     private String hostId; // Foreign key reference to User Microservice
     // Getters and Setters
@@ -62,6 +68,18 @@ public CreatePropertyDTO() {}
     }
     public void setHostId(String hostId) {
         this.hostId = hostId;
+    }
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    public String getPropertyType() {
+        return propertyType;
+    }
+    public void setPropertyType(String propertyType) {
+        this.propertyType = propertyType;
     }
 
 

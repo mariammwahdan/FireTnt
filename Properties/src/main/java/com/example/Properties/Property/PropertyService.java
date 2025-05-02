@@ -37,7 +37,11 @@ public class PropertyService {
         property.setDescription(dto.getDescription());
         property.setPricePerNight(dto.getPricePerNight());
         property.setHostId(dto.getHostId());
-        property.setBooked(false); // newly created properties are not booked
+        property.setBooked(false);
+        property.setPropertyType(dto.getPropertyType());
+        property.setLocation(dto.getLocation());
+
+        // newly created properties are not booked
 
         Property savedProperty = propertyRepository.save(property);
 
@@ -136,6 +140,9 @@ public class PropertyService {
         if (dto.getPricePerNight() != null) property.setPricePerNight(dto.getPricePerNight());
         property.setBooked(dto.getBooked());
         if (dto.getHostId() != null) property.setHostId(dto.getHostId());
+        if (dto.getLocation() != null) property.setLocation(dto.getLocation());
+        if (dto.getPropertyType() != null) property.setPropertyType(dto.getPropertyType());
+
 
         Property updated= propertyRepository.save(property);
         //Invalidate caches

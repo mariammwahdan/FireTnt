@@ -11,15 +11,17 @@
 
 <!-- Container -->
 <div class="max-w-7xl mx-auto">
-  <h2 class="text-2xl font-bold mb-6 text-center">My Bookings</h2>
+  <h1 th:if="${bookings.size() > 0}" class="text-2xl font-bold mb-6 text-center">My Bookings</h1>
 
-  <div th:if="${bookings.size() == 0}" class="text-center text-gray-600 mb-6">You have no bookings yet.</div>
+    <h1 th:if="${bookings.size() == 0}" class="text-4xl font-bold mb-10 text-center mt-20">You have no bookings yet.</h1>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
     <!-- Each Booking -->
     <div th:each="booking : ${bookings}" class="p-4 shadow-md bg-white border rounded-lg">
-   <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.getPropertyTitle()}"></span></h3>
-     <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.getPropertyDescription()}"></span></h3>
+   <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.propertyTitle}"></span></h3>
+        <p class="text-sm text-gray-600 mb-1">Location: <span th:text="${booking.propertyLocation}"></span></p>
+        <p class="text-sm text-gray-600 mb-1">Property Type: <span th:text="${booking.propertyType}"></span></p>
+     <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.propertyDescription}"></span></h3>
       <p class="text-sm text-gray-600 mb-1">Check-in: <span th:text="${#dates.format(booking.getBooking().checkIn, 'yyyy-MM-dd')}">2025-05-01</span></p>
       <p class="text-sm text-gray-600 mb-1">Check-out: <span th:text="${#dates.format(booking.getBooking().checkOut, 'yyyy-MM-dd')}">2025-05-05</span></p>
       <p class="text-sm text-gray-600 mb-1">Nights: <span th:text="${booking.getBooking().noOfNights}">4</span></p>
@@ -27,15 +29,20 @@
       <p class="text-sm" th:classappend="${booking.getBooking().status.name() == 'CANCELLED'} ? 'text-red-600' : 'text-green-600'">
         Status: <span th:text="${booking.getBooking().status}"></span>
       </p>
-      <form th:if="${booking.booking.status.name() != 'CANCELLED'}"
-            th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.id})}" method="post">
-        <button type="submit"
-                class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4">
-          Cancel Booking
-        </button>
-      </form>
+<!--        <p class="text-sm text-green-600 mb-1">Payment Status: <span th:text="${paymentStatus}"></span></p>-->
+<!--      <form th:if="${booking.booking.status.name() != 'CANCELLED'}"-->
+<!--            th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.id})}" method="post">-->
+<!--        <button type="submit"-->
+<!--                class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4">-->
+<!--          Cancel Booking-->
+<!--        </button>-->
+<!--      </form>-->
 
-      <!-- Cancel button only if not already cancelled -->
+        <form th:if="${booking.booking.status.name() != 'CANCELLED'}" th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.bookingId})}" method="post">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg">
+                Cancel Booking
+            </button>
+        </form>
 
 
 
