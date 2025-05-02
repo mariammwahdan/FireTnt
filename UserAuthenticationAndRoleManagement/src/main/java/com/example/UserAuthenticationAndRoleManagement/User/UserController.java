@@ -38,6 +38,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
     public User create(@RequestBody CreateUserDTO dto) {
         return svc.createUser(dto);
     }

@@ -1,5 +1,6 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest.DTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
@@ -8,6 +9,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 public class BookingDTO {
+
+    @JsonProperty("id")  // <- This is crucial if backend sends `id` instead of `bookingId`
+    private Long bookingId;
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
 
     @Positive(message = "Property ID must be a positive number")
     private long propertyId;

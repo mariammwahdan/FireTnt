@@ -6,8 +6,11 @@ import lombok.Setter;
 @Setter
 public class GuestBookingViewDTO {
     private BookingDTO booking;
+
     private String propertyTitle;
     private String propertyDescription;
+    private String propertyLocation;
+    private String propertyType;
 
 
 }
