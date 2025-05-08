@@ -3,7 +3,6 @@ package com.example.UserAuthenticationAndRoleManagement.auth;
 import com.example.Notifications.Notification.DTO.CreateNotificationDTO;
 
 import com.example.Notifications.Notification.Notification;
-import com.example.Notifications.Notification.NotificationService;
 import com.example.UserAuthenticationAndRoleManagement.User.Role;
 import com.example.UserAuthenticationAndRoleManagement.User.User;
 import com.example.UserAuthenticationAndRoleManagement.User.UserRepository;
@@ -91,7 +90,7 @@ public class FirebaseAuthenticationService {
     private final String apiKey;
     private final FirebaseAuth firebaseAuth;
     private final RestTemplate restTemplate;
-   private final String notificationServiceUrl = "http://localhost:8083/api/notifications/send-welcome-message"; // Replace with your Notification service's URL
+   private final String notificationServiceUrl = "http://localhost:8083/api/notifications/send-welcome-message/json"; // Replace with your Notification service's URL
 
     public FirebaseAuthenticationService(
             UserRepository userRepo,
@@ -106,6 +105,8 @@ public class FirebaseAuthenticationService {
         this.restTemplate = restTemplate;
 
     }
+
+
 
     public LoginResponse loginWithToken(String idToken) {
         try {
@@ -452,7 +453,7 @@ public class FirebaseAuthenticationService {
         FirebaseAuthResponse resp = webClient.post()
                 .uri(uri -> uri
                         .path("/accounts:signInWithPassword")
-                        .queryParam("key", apiKey)
+                        .queryParam("key", apiKey.trim())
                         .build())
                 .bodyValue(Map.of(
                         "email", req.getEmail(),
@@ -487,6 +488,8 @@ public class FirebaseAuthenticationService {
                     n.setPassword(""); // password is empty for Firebase users
                     n.setRole(Role.GUEST);  // Set the role to GUEST by default
 
+                    n = userRepo.save(n);
+
                     // Step 4: Send the welcome notification via Notifications service
                     CreateNotificationDTO notificationDTO = new CreateNotificationDTO(
                             n.getUserId(),
@@ -495,9 +498,15 @@ public class FirebaseAuthenticationService {
                     );
 
                     // Send HTTP request to Notification service
-                    restTemplate.postForObject(notificationServiceUrl, notificationDTO, Notification.class);
+                    try {
+                        restTemplate.postForObject(notificationServiceUrl, notificationDTO, Notification.class);
+                    } catch (Exception e) {
+                        // Handle the exception if notification service fails, log it for debugging
+                        e.printStackTrace();
+                        // Optional: Decide if you want to proceed even if notification service fails
+                    }
 
-                    return userRepo.save(n);
+                    return n;
                 });
 
         // Step 5: Return LoginResponse with the user's details and tokens
@@ -509,6 +518,26 @@ public class FirebaseAuthenticationService {
         );
     }
 
+
+//    public FirebasePrincipal getPrincipalByUid(String uid) {
+//        User u = userRepo.findByFirebaseUid(uid)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+//        return new FirebasePrincipal(u.getFirebaseUid(), u.getEmail());
+//    }
+
+    // in FirebaseAuthenticationService
+    public FirebasePrincipal getPrincipalByUid(String uid) {
+        System.out.println("Trying to find user with Firebase UID: " + uid);
+        User u = userRepo.findByFirebaseUid(uid)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+                );
+        return new FirebasePrincipal(
+                u.getFirebaseUid(),
+                u.getEmail(),
+                u.getRole()           // pass the enum
+        );
+    }
 
 
 

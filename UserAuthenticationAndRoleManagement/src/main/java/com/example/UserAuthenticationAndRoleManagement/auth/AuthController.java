@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -156,6 +157,7 @@ public class AuthController {
     public String handleLogin(
             @ModelAttribute("loginRequest") LoginRequest request,
             BindingResult result,
+            HttpSession session,
             HttpServletResponse response,
             Model model
     ) {
@@ -166,16 +168,20 @@ public class AuthController {
         try {
             LoginResponse login = authSvc.loginWithEmail(request);
 
-            String session = authSvc.createSessionCookie(login.getIdToken());
+            session.setAttribute("userFirebaseId", login.getuserFirebaseId());
+            session.setAttribute("email",   login.getEmail());
+            
 
-            ResponseCookie sessionCookie = ResponseCookie.from("SESSION", session)
+            String sessionCookie = authSvc.createSessionCookie(login.getIdToken());
+
+            ResponseCookie cookie = ResponseCookie.from("SESSION", sessionCookie)
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
                     .maxAge(Duration.ofDays(5))
                     .sameSite("Strict")
                     .build();
-            response.addHeader(HttpHeaders.SET_COOKIE, sessionCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
             return "redirect:/api/users/dashboard"; // Redirect after successful login
 

@@ -1,8 +1,11 @@
 package com.example.Notifications.Notification.DTO;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Data
 public class CreateNotificationDTO {
     @NotNull
