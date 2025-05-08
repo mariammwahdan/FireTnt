@@ -1,13 +1,15 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest;
-import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
-import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.GuestBookingViewDTO;
-import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.GuestPropertyDTO;
-import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.PaymentDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.Client.NotificationsClient;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.*;
 import com.example.UserAuthenticationAndRoleManagement.Host.HostService;
+import com.example.UserAuthenticationAndRoleManagement.User.DTO.NotificationDto;
 import com.example.UserAuthenticationAndRoleManagement.User.UserService;
+import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,12 +29,17 @@ public class GuestController {
     private final GuestService guestService;
     private final UserService userService;
     private final HostService hostService;
+    private final NotificationsClient notifClient;
 
 
-    public GuestController(GuestService guestService, UserService userService, HostService hostService) {
+
+
+    public GuestController(GuestService guestService, UserService userService, HostService hostService, NotificationsClient notifClient) {
         this.guestService = guestService;
         this.userService = userService;
         this.hostService = hostService;
+
+        this.notifClient = notifClient;
     }
 
     @GetMapping("/properties/{propertyId}/book")
@@ -155,4 +162,39 @@ public class GuestController {
 
     }
 
+//    @GetMapping("/guest/my-notifications")
+//    public String showNotifications(
+//            @AuthenticationPrincipal FirebasePrincipal principal,
+//            Model model
+//    ) {
+//        // 1 pull Firebase UID from security context
+//        String firebaseUid = principal.getUid();
+//
+//        // 2 translate to local userId
+//        Long userId = userService.findUserIdByFirebaseUid(firebaseUid);
+//
+//        // 3 fetch notifications via REST JSON client
+//        List<NotificationDto> notes = userService.getNotifications(userId);
+//
+//        // 4 bind to Thymeleaf model
+//        model.addAttribute("notifications", notes);
+//        model.addAttribute("role", "GUEST");
+//
+//        // 5 render template src/main/resources/templates/myNotifications.html
+//        return "myNotifications";
+//    }
+
+    @GetMapping("/my-notifications")
+    public String showNotifications(HttpSession session, Model model) {
+        // 1. pull firebaseUid out of session
+        String firebaseUid = (String) session.getAttribute("userFirebaseId");
+        // 2. convert to our internal userId
+        Long userId = userService.findUserIdByFirebaseUid(firebaseUid);
+        // 3. call Notifications microservice
+        List<NotificationDTO> notes = notifClient.fetchByUserId(userId);
+        // 4. bind and render
+        model.addAttribute("notifications", notes);
+        model.addAttribute("role", "GUEST");
+        return "myNotifications";  // Thymeleaf template under src/main/resources/templates/
+    }
 }

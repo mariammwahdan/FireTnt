@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -43,11 +45,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .addFilterBefore(sessionCookieFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup", "/login", "/api/auth/login", "/api/users","/login/json" , "send-welcome-message" ).permitAll()
+                        .requestMatchers("/signup", "/login", "/api/auth/login", "/api/users","/login/json" , "send-welcome-message" , "send-welcome-message/json").permitAll()
                         .requestMatchers(HttpMethod.GET , "/api/admin/users/").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/notifications/guest/my-notifications").hasRole("GUEST")
+                        .requestMatchers(HttpMethod.GET, "/api/users/by-firebase-uid").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/email").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
@@ -64,23 +69,41 @@ public class SecurityConfig {
 
 
 //    @Bean
-//    public Filter sessionCookieFilter() {
-//        return new OncePerRequestFilter() {
-//            @Override
-//            protected void doFilterInternal(HttpServletRequest req,
-//                                            HttpServletResponse res,
-//                                            FilterChain chain)
-//                    throws ServletException, IOException {
-//                Cookie c = WebUtils.getCookie(req,"SESSION");
-//                if (c != null) {
-//                    FirebaseToken token = authSvc.verifySession(c.getValue());
-//                    // build an Authentication and set into SecurityContext
-//                    // e.g. UsernamePasswordAuthenticationToken principal
-//                }
-//                chain.doFilter(req,res);
-//            }
+//    public AuthenticationManager authenticationManager() {
+//        return authentication -> {
+//            String firebaseUid = (String) authentication.getCredentials();
+//            FirebasePrincipal principal = authSvc.getPrincipalByUid(firebaseUid);
+//            return new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<>());
 //        };
 //    }
+
+    // in SecurityConfig
+//    @Bean
+//    public AuthenticationManager authenticationManager() {
+//        return authentication -> {
+//            String firebaseUid = (String) authentication.getCredentials();
+//            FirebasePrincipal principal = authSvc.getPrincipalByUid(firebaseUid);
+//            return new UsernamePasswordAuthenticationToken(
+//                    principal,
+//                    null,
+//                    principal.getAuthorities()   // now contains ROLE_GUEST etc
+//            );
+//        };
+//    }
+
+    // in SecurityConfig
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return authentication -> {
+            String firebaseUid = (String) authentication.getCredentials();
+            FirebasePrincipal principal = authSvc.getPrincipalByUid(firebaseUid);
+            return new UsernamePasswordAuthenticationToken(
+                    principal,
+                    null,
+                    principal.getAuthorities()   // now contains ROLE_GUEST etc
+            );
+        };
+    }
 
     @Bean
     public OncePerRequestFilter sessionCookieFilter() {
@@ -93,22 +116,66 @@ public class SecurityConfig {
             ) throws ServletException, IOException {
                 Cookie c = WebUtils.getCookie(req, "SESSION");
                 if (c != null) {
-                    FirebaseToken token = authSvc.verifySession(c.getValue());
-                    String role = (String) token.getClaims().get("role");
-                    List<GrantedAuthority> auths = List.of(
-                            new SimpleGrantedAuthority("ROLE_" + role)
-                    );
-                    Authentication auth = new UsernamePasswordAuthenticationToken(
-                            new FirebasePrincipal(token.getUid(), token.getEmail()),
-                            null,
-                            auths
-                    );
+                    // 1 verify the Firebase session cookie
 
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    try {
+                        FirebaseToken token = authSvc.verifySession(c.getValue());
+
+                        // 2 load your User + role from the DB
+                        FirebasePrincipal principal =
+                                authSvc.getPrincipalByUid(token.getUid());
+
+                        // 3 build Spring Authentication with the real authorities
+                        Authentication auth =
+                                new org.springframework.security.authentication
+                                        .UsernamePasswordAuthenticationToken(
+                                        principal,
+                                        null,
+                                        principal.getAuthorities()
+                                );
+
+                        SecurityContextHolder
+                                .getContext()
+                                .setAuthentication(auth);
+                    }catch (Exception e){
+
+                    }
                 }
                 chain.doFilter(req, res);
             }
         };
     }
+
+
+
+
+//    @Bean
+//    public OncePerRequestFilter sessionCookieFilter() {
+//        return new OncePerRequestFilter() {
+//            @Override
+//            protected void doFilterInternal(
+//                    HttpServletRequest req,
+//                    HttpServletResponse res,
+//                    FilterChain chain
+//            ) throws ServletException, IOException {
+//                Cookie c = WebUtils.getCookie(req, "SESSION");
+//                if (c != null) {
+//                    FirebaseToken token = authSvc.verifySession(c.getValue());
+//                    String role = (String) token.getClaims().get("role");
+//                    List<GrantedAuthority> auths = List.of(
+//                            new SimpleGrantedAuthority("ROLE_" + role)
+//                    );
+//                    Authentication auth = new UsernamePasswordAuthenticationToken(
+//                            new FirebasePrincipal(token.getUid(), token.getEmail()),
+//                            null,
+//                            auths
+//                    );
+//
+//                    SecurityContextHolder.getContext().setAuthentication(auth);
+//                }
+//                chain.doFilter(req, res);
+//            }
+//        };
+//    }
 }
 
