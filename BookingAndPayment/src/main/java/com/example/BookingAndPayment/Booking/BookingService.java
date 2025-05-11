@@ -121,13 +121,13 @@ Logger logger = Logger.getLogger(BookingService.class.getName());
     public int getBookingDuration(Long id) {
         Booking booking = getBookingById(id);
         return booking.getNoOfNights();}
+
     @DistributedLock(
             keyPrefix = BOOKING_LOCK_PREFIX,
             keyIdentifierExpression = "#id",
             leaseTime = 60,
             timeUnit = TimeUnit.SECONDS
     )
-
     public Booking cancelBooking(Long id) {
         Booking booking = getBookingById(id);
         if (booking.getStatus() == Booking.BookingStatus.CANCELLED) {
