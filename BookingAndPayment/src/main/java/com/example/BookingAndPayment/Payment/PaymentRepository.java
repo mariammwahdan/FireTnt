@@ -10,5 +10,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>
 {
     // Custom Query to Find Payment by Booking ID
     Payment findByBookingId(long bookingId);
+    void deleteByBookingId(long bookingId);
 
 }

@@ -1,8 +1,5 @@
 package com.example.UserAuthenticationAndRoleManagement.User;
 
-
-
-
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.HostService;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.CreateUserDTO;
@@ -13,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,9 +19,32 @@ import java.util.List;
 public class UserController {
     private final UserService svc;
     private final HostService hostService;
-    public UserController(UserService svc, HostService hostService) {
+    private final UserRepository userRepo;
+
+    public UserController(UserService svc, UserRepository userRepo, HostService hostService) {
         this.svc = svc;
         this.hostService = hostService;
+        this.userRepo = userRepo;
+    }
+
+    @GetMapping("/by-firebase-uid")
+    @ResponseBody
+    public Long getByFirebaseUid(@RequestParam String uid) {
+        return userRepo
+                .findByFirebaseUid(uid)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found"
+                ))
+                .getUserId();
+    }
+
+    @GetMapping("/{id}/email")
+    @ResponseBody
+    public String getEmail(@PathVariable Long id) {
+        return userRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,"User not found"))
+                .getEmail();
     }
 
     @GetMapping
@@ -38,6 +59,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
     public User create(@RequestBody CreateUserDTO dto) {
         return svc.createUser(dto);
     }

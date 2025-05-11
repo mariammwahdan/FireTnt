@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class PropertyService {
+    private PaymentAndBookingClient paymentAndBookingClient;
     private ReviewsClient reviewClient; // You said you created ReviewClient already
     private static final Logger log = LoggerFactory.getLogger(PropertyService.class); // Add logger
     private final PropertyRepository propertyRepository;
@@ -28,9 +29,10 @@ public class PropertyService {
     private static final String ALL_PROPERTIES_CACHE_KEY = "properties:all";
     private static final Duration CACHE_TTL = Duration.ofMinutes(10); // Define cache TTL (e.g., 10 minutes)
     @Autowired
-    public PropertyService(PropertyRepository propertyRepository, ReviewsClient reviewClient) {
+    public PropertyService(PropertyRepository propertyRepository, ReviewsClient reviewClient , PaymentAndBookingClient paymentAndBookingClient) {
         this.propertyRepository = propertyRepository;
         this.reviewClient = reviewClient;
+        this.paymentAndBookingClient = paymentAndBookingClient;
     }
 
     @DistributedLock(
@@ -45,7 +47,11 @@ public class PropertyService {
         property.setDescription(dto.getDescription());
         property.setPricePerNight(dto.getPricePerNight());
         property.setHostId(dto.getHostId());
-        property.setBooked(false); // newly created properties are not booked
+        property.setBooked(false);
+        property.setPropertyType(dto.getPropertyType());
+        property.setLocation(dto.getLocation());
+
+        // newly created properties are not booked
 
         Property savedProperty = propertyRepository.save(property);
 
@@ -149,6 +155,9 @@ public class PropertyService {
         if (dto.getPricePerNight() != null) property.setPricePerNight(dto.getPricePerNight());
         property.setBooked(dto.getBooked());
         if (dto.getHostId() != null) property.setHostId(dto.getHostId());
+        if (dto.getLocation() != null) property.setLocation(dto.getLocation());
+        if (dto.getPropertyType() != null) property.setPropertyType(dto.getPropertyType());
+
 
         Property updated= propertyRepository.save(property);
         //Invalidate caches
@@ -175,6 +184,8 @@ public class PropertyService {
             throw new RuntimeException("Property not found");
         }
         propertyRepository.deleteById(id);
+        paymentAndBookingClient.deletBookingsByPropertyId(id);
+
         String propertyCacheKey = "property::" + id;
         try {
             redisClient.delete(propertyCacheKey); // Remove specific property cache

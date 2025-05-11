@@ -2,38 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Properties</title>
+    <title>Available Properties</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-100 text-gray-900 font-sans">
+<!-- Navbar -->
 <div th:replace="fragments/navbar :: navbar(role=${role})"></div>
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Available Properties</h1>
 
-<!--    &lt;!&ndash; Flash message &ndash;&gt;-->
-<!--    <div th:if="${success}" id="flash-message" class="mb-6">-->
-<!--        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">-->
-<!--            <strong class="font-bold">Success! </strong>-->
-<!--            <span th:text="${success}">Property created successfully!</span>-->
-<!--        </div>-->
-<!--    </div>-->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <div th:each="property : ${properties}" class="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
-            <h2 class="text-xl font-semibold mb-2" th:text="${property.title}">Property Name</h2>
-            <p class="text-sm text-gray-600 mb-1">Type: <span th:text="${property.description}">Apartment</span></p>
-            <p class="text-sm text-gray-600 mb-2">Price: $<span th:text="${property.pricePerNight}">1000</span></p>
-            <p class="text-sm text-gray-600 mb-2">Host ID: <span th:text="${property.hostId}">1</span></p>
-            <p class="text-sm text-gray-600 mb-2">Status: <span th:text="${property.booked ? 'Booked' : 'Available'}" th:classappend="${property.booked} ? 'text-red-500' : 'text-green-500'">Available</span></p>
+<!-- Page Container -->
+<div class="container mx-auto px-4 py-10">
+    <h1 th:if="${properties.size()> 0}" class="text-4xl font-bold mb-10 text-center mt-20">Available Properties</h1>
 
-            <a th:href="@{/api/users/properties/{id}/details(id=${property.propertyId})}" class="inline-block bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded hover:bg-blue-700">
-                View Details
-            </a>
+    <h1 th:if="${properties.size() == 0}" class="text-4xl font-bold mb-10 text-center mt-20">No Available properties.</h1>
+
+
+    <!-- Property Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div th:each="property : ${properties}" class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
+
+            <img src="https://t4.ftcdn.net/jpg/03/70/64/43/360_F_370644357_MDF4UXLAXTyyi2OyuK66tWW9cA2f8svL.jpg"
+                 alt="Property image"
+                 class="w-full h-48 object-cover"
+                  />
+
+            <!-- Property Details -->
+            <div class="p-5">
+<!--                <div class="flex justify-between items-center mb-2">-->
+<!--                    <h2 class="text-lg font-semibold text-gray-800 truncate" th:text="${property.title}">Property Title</h2>-->
+<!--                    <span th:text="${property.booked ? 'Booked' : 'Available'}"-->
+<!--                          th:classappend="${property.booked} ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'"-->
+<!--                          class="text-xs font-semibold px-2 py-1 rounded-full">-->
+<!--                        Available-->
+<!--                    </span>-->
+<!--                </div>-->
+
+                <p class="text-lg text-black-600 mb-1 font-bold">📍 <span th:text="${property.location}">Location</span></p>
+                <p class="text-lg text-gray-600 mb-1 font-bold">🏠  <span th:text="${property.propertyType}">Type</span></p>
+<!--                <p class="text-lg text-gray-600 mb-1 font-bold">📝 <span th:text="${property.description}">Description</span></p>-->
+                <p class="text-lg font-bold text-blue-700 mt-2">🏷 $<span th:text="${property.pricePerNight}">1000</span> / night</p>
+
+<!--                <p class="text-xs text-gray-400 mt-1">Host ID: <span th:text="${property.hostId}">1</span></p>-->
+
+                <!-- View Button -->
+                <a th:href="@{/api/users/properties/{id}/details(id=${property.propertyId})}"
+                   class="block mt-4 text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-xl">
+                    View Details
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Flash Message Script -->
 <script>
-    // Auto-hide flash message after 2 seconds
-    setTimeout(function() {
+    setTimeout(function () {
         const flash = document.getElementById('flash-message');
         if (flash) {
             flash.style.display = 'none';

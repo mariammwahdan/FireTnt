@@ -54,6 +54,8 @@ public class PropertyController {
                         p.getDescription(),
                         p.getPricePerNight(),
                         p.isBooked(),
+                        p.getLocation(),
+                        p.getPropertyType(),
                         p.getHostId()
                 ))
                 .toList();
@@ -71,6 +73,8 @@ public class PropertyController {
                         p.getDescription(),
                         p.getPricePerNight(),
                         p.isBooked(),
+                        p.getLocation(),
+                        p.getPropertyType(),
                         p.getHostId()
                 ))
                 .toList();

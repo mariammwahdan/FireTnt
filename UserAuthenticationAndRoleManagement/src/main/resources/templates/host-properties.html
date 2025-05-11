@@ -4,39 +4,55 @@
     <title>My Listings</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen pt-20 px-6">
-
+<body class="bg-gray-100 min-h-screen pt-20 px-4 font-sans">
 
 <!-- Navbar -->
 <div th:replace="fragments/navbar :: navbar(role=${role})" class="fixed top-0 left-0 right-0 z-50"></div>
 
+<!-- Page Container -->
+<div class="max-w-7xl mx-auto mt-24">
+    <div class="flex items-center justify-between mb-10">
+        <h1 class="text-4xl font-bold text-gray-800">My Property Listings</h1>
+        <a th:href="@{/host/properties/create}"
+           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow">
+            + Add New Property
+        </a>
+    </div>
 
-<!-- Container -->
-<div class="max-w-7xl mx-auto">
-    <h2 class="text-2xl font-bold mb-6 text-center">My Property Listings</h2>
-    <a th:href="@{/host/properties/create}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center mb-5">
-        + Add New Property
-    </a>
-    <div th:if="${properties.size() == 0}" class="text-center text-gray-600 mb-6">You have no properties yet.</div>
+    <div th:if="${properties.size() == 0}" class="text-center text-gray-600 font-medium text-lg">
+        You have no properties yet.
+    </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+    <!-- Listings Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div th:each="prop : ${properties}" class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
 
-        <!-- Existing Properties -->
-        <div th:each="prop : ${properties}" class="p-4 shadow-md bg-white border rounded-lg">
-            <h3 class="text-lg font-bold mb-1" th:text="${prop.title}">Property Title</h3>
-            <p class="mb-2 text-sm text-gray-700" th:text="${prop.description}">Property description</p>
-            <p class="text-sm text-gray-500">
-                Price: $<span th:text="${prop.pricePerNight}"></span>
-            </p>
-            <a th:href="@{/host/properties/edit/{id}(id=${prop.propertyId})}"
-               class="inline-block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4">
-                Edit Property
-            </a>
-            <a th:href="@{/host/properties/{id}/delete(id=${prop.propertyId})}"
-               class="inline-block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded mt-4">
-                Delete Property
-            </a>
+            <!-- Optional Property Image -->
+            <img src="https://t4.ftcdn.net/jpg/03/70/64/43/360_F_370644357_MDF4UXLAXTyyi2OyuK66tWW9cA2f8svL.jpg"
 
+                 alt="Property image"
+                 class="w-full h-48 object-cover">
+
+            <div class="p-5">
+                <h3 class="text-xl font-semibold text-gray-800 mb-1 truncate" th:text="${prop.title}">Property Title</h3>
+                <p class="text-sm text-gray-600" th:text="${prop.propertyType}">Type</p>
+                <p class="text-sm text-gray-600" th:text="${prop.location}">Location</p>
+                <p class="text-sm text-gray-600 mt-2 truncate" th:text="${prop.description}">Description</p>
+                <p class="text-md font-bold text-blue-700 mt-2">
+                    $<span th:text="${prop.pricePerNight}">1000</span> / night
+                </p>
+
+                <div class="flex gap-2 mt-5">
+                    <a th:href="@{/host/properties/edit/{id}(id=${prop.propertyId})}"
+                       class="flex-1 text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg">
+                        Edit
+                    </a>
+                    <a th:href="@{/host/properties/{id}/delete(id=${prop.propertyId})}"
+                       class="flex-1 text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg">
+                        Delete
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

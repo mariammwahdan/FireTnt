@@ -1,16 +1,14 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest;
-
-import com.example.BookingAndPayment.Aspects.LoggingAspect;
-import com.example.BookingAndPayment.Booking.Booking;
-import com.example.BookingAndPayment.Booking.DTO.CreateBookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.BookingAndPaymentClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.GuestPropertyClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.GuestPropertyDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.PaymentDTO;
 import com.example.UserAuthenticationAndRoleManagement.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -29,19 +27,51 @@ public class GuestService {
 public GuestPropertyDTO getPropertyById(long propertyId) {
         return guestPropertyClient.getPropertyById(propertyId);
     }
-    public List<Booking> getBookingsByGuestId(String guestId) {
+    public List<BookingDTO> getBookingsByGuestId(String guestId) {
         return bookingAndPaymentClient.getBookingsByGuestId(guestId);
     }
-    public  void createBooking(CreateBookingDTO bookingDTO) {
-        bookingAndPaymentClient.createBooking(bookingDTO);
-        markPropertyAsBooked(bookingDTO.getPropertyId());
+    public  Long createBooking(BookingDTO bookingDTO) {
+        return bookingAndPaymentClient.createBooking(bookingDTO);
+      //  markPropertyAsBooked(bookingDTO.getPropertyId());
     }
     public void markPropertyAsBooked(Long propertyId) {
         GuestPropertyDTO property = guestPropertyClient.getPropertyById(propertyId);
         property.setBooked(true);
         guestPropertyClient.updateProperty(propertyId, property);
     }
-    public CreateBookingDTO cancelBooking(Long bookingId) {
-        return bookingAndPaymentClient.cancelBooking(bookingId);
+    public void cancelBooking(Long bookingId) {
+        BookingDTO cancelledBooking = bookingAndPaymentClient.cancelBooking(bookingId);
+
+//        // 2. Update the property to set booked = false
+//        GuestPropertyDTO property = guestPropertyClient.getPropertyById(cancelledBooking.getPropertyId());
+//        property.setBooked(false);
+//         guestPropertyClient.updateProperty(property.getPropertyId(), property);
+  }
+    public void refundPayment(Long bookingId) {
+        PaymentDTO payment = new PaymentDTO();
+        payment.setBookingId(bookingId);
+        payment.setStatus(PaymentDTO.PaymentStatus.REFUNDED);
+        payment.setCreatedAt(LocalDateTime.now());
+
+        // Call the microservice to update payment status
+        bookingAndPaymentClient.updatePaymentStatus(payment);
     }
+    public List<String> getUnavailableDatesForProperty(Long propertyId) {
+        return bookingAndPaymentClient.getBookedDatesByPropertyId(propertyId);
+    }
+    public  void createPayment(PaymentDTO paymentDTO) {
+        bookingAndPaymentClient.createPayment(paymentDTO);
+        //  markPropertyAsBooked(bookingDTO.getPropertyId());
+    }
+    public BookingDTO getBookingById(long bookingId) {
+        return bookingAndPaymentClient.getBookingById(bookingId);
+    }
+    public GuestPropertyDTO getProperty(long propertyId) {
+        return guestPropertyClient.getPropertyById(propertyId);
+    }
+    public PaymentDTO getPayment(long paymentId) {
+        return bookingAndPaymentClient.getPaymentById(paymentId);
+    }
+
+
 }

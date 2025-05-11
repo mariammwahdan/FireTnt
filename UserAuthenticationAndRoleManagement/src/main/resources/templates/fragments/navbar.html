@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
 <title>FireTnt</title>
@@ -28,6 +28,17 @@
             <li th:if="${role == 'ADMIN'}"><a href="/admin/panel" class="text-white">Admin Panel</a></li>
             <li th:if="${role == 'HOST'}"><a href="/host/properties" class="text-white">My Listings</a></li>
             <li th:if="${role == 'GUEST'}"><a href="/guest/bookings" class="text-white">My Reservations</a></li>
+            <li th:if="${role=='GUEST'}">
+                <a th:href="@{/guest/my-notifications}" class="text-white">My Notifications</a>
+            </li>
+<!--            <li sec:authorize="hasRole('GUEST')">-->
+<!--                <a th:href="@{http://localhost:8083/api/notifications/guest/my-notifications(-->
+<!--      firebaseUid=${session.userFirebaseId}-->
+<!--  )}" class="text-white">-->
+<!--                    My Notifications-->
+<!--                </a>-->
+<!--            </li>-->
+
         </ul>
 
         <!-- Right Side Auth/Profile -->

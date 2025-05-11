@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notification Created</title>
+</head>
+<body>
+<h1>Notification Sent Successfully</h1>
+<p><strong>To:</strong> <span th:text="${notification.recipientEmail}"></span></p>
+<p><strong>Message:</strong> <span th:text="${notification.message}"></span></p>
+
+<a href="/guest/my-notifications">Go to My Notifications</a>
+</body>
+</html>

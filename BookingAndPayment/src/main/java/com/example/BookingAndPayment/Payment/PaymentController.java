@@ -22,11 +22,11 @@ public class PaymentController {
     }
 
     // Endpoint 1: Create Payment
-    @PostMapping
+    @PostMapping("/create")
     @RateLimit(limit = 3, duration = 60, keyPrefix = "createPayment")
-    public ResponseEntity<Payment> createPayment(@Valid @RequestBody CreatePaymentDTO createPaymentDTO) {
-        Payment payment = paymentService.createPayment(createPaymentDTO);
-        return new ResponseEntity<>(payment, HttpStatus.CREATED);
+    public ResponseEntity<String> createPayment(@Valid @RequestBody CreatePaymentDTO createPaymentDTO) {
+  paymentService.createPayment(createPaymentDTO);
+        return ResponseEntity.ok( "Payment created successfully");
     }
 
     // Endpoint 2: Get All Payments
@@ -59,4 +59,13 @@ public class PaymentController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePayment(@PathVariable long id) {
+        boolean isDeleted = paymentService.deletePayment(id);
+        if (isDeleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }
+
