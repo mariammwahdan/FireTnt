@@ -1,5 +1,6 @@
 package com.example.Properties.Property;
 
+import com.example.Properties.Annotations.DistributedLock;
 import com.example.Properties.Property.DTO.*;
 import com.example.Properties.Property.Model.Property;
 import com.example.Properties.Redis.RedisClient;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.example.Properties.ReviewsClient;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class PropertyService {
@@ -31,6 +33,12 @@ public class PropertyService {
         this.reviewClient = reviewClient;
     }
 
+    @DistributedLock(
+            keyPrefix = "property:create",
+            keyIdentifierExpression = "#dto.hostId",
+            leaseTime = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
     public Property createProperty(CreatePropertyDTO dto) {
         Property property = new Property();
         property.setTitle(dto.getTitle());
@@ -54,7 +62,6 @@ public class PropertyService {
     }
 
     public List<Property> getAllProperties() {
-
 
         try {
             String cached = redisClient.get(ALL_PROPERTIES_CACHE_KEY);
@@ -128,6 +135,12 @@ public class PropertyService {
         return propertyRepository.findByHostId(hostId);
     }
 
+    @DistributedLock(
+            keyPrefix = "property:update",
+            keyIdentifierExpression = "#id",
+            leaseTime = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
     public Property updateProperty(Integer id, UpdatePropertyDTO dto) {
         Property property = getPropertyById(id); // handles not found exception
 
@@ -151,6 +164,12 @@ public class PropertyService {
         return updated;
     }
 
+    @DistributedLock(
+            keyPrefix = "property:delete",
+            keyIdentifierExpression = "#id",
+            leaseTime = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
     public void deleteProperty(Integer id) {
         if (!propertyRepository.existsById(id)) {
             throw new RuntimeException("Property not found");

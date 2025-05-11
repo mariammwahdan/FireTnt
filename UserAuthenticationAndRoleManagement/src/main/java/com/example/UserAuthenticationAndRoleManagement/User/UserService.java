@@ -219,7 +219,8 @@ public class UserService {
             u.setEmail(rec.getEmail());
             u.setFirstName(dto.getFirstName());
             u.setLastName(dto.getLastName());
-            u.setPhoneNumber(dto.getPhoneNumber());
+            u.setPhoneNumber(dto.
+                    getPhoneNumber());
             u.setPassword(dto.getPassword());
             u.setRole(dto.getRole());  // Set the role here
             return userRepository.save(u);

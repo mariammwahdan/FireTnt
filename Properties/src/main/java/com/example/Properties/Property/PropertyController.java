@@ -1,5 +1,6 @@
 package com.example.Properties.Property;
 
+import com.example.Properties.Annotations.RateLimit;
 import com.example.Properties.Property.DTO.*;
 import com.example.Properties.Property.Model.Property;
 import com.example.Properties.Property.Model.Review;
@@ -28,6 +29,7 @@ public class PropertyController {
 
     @PostMapping("/create")
     @ResponseBody
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "createProperty")
     public ResponseEntity<String> createPropertyApi(@RequestBody @Valid CreatePropertyDTO dto) {
         propertyService.createProperty(dto);
         return ResponseEntity.ok("Property created successfully");
@@ -42,6 +44,7 @@ public class PropertyController {
 //    }
     @GetMapping("/all")
     @ResponseBody
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "getAllProperties")
     public List<Property> getAllProperties() {
         List<Property> properties = propertyService.getAllProperties();
         return properties.stream()
@@ -58,6 +61,7 @@ public class PropertyController {
 
     @GetMapping("/host/{hostId}")
     @ResponseBody
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "getPropetiesByHostId")
     public List<Property> getPropertiesByHostId(@PathVariable String hostId) {
         List<Property> properties = propertyService.getPropertiesByHostId(hostId);
         return properties.stream()
@@ -74,6 +78,7 @@ public class PropertyController {
 
 
     @GetMapping("/{id}/details")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "viewPropertyDetails")
     public String viewPropertyDetails(@PathVariable Integer id, Model model) {
         Property property = propertyService.getPropertyById(id);
         if (property == null) {
@@ -85,6 +90,7 @@ public class PropertyController {
     }
     @GetMapping("/{id}")
     @ResponseBody
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "getPropertyById")
     public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
         Property property = propertyService.getPropertyById(id);
         if (property == null) {
@@ -94,8 +100,8 @@ public class PropertyController {
     }
 
     @PutMapping("/{id}/update")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "updateProperty")
     public ResponseEntity<Property> updateProperty(@PathVariable Integer id, @RequestBody UpdatePropertyDTO dto) {
-
         Property updatedProperty = propertyService.updateProperty(id, dto);
         if (updatedProperty == null) {
             return ResponseEntity.notFound().build();
@@ -105,19 +111,17 @@ public class PropertyController {
 
 }
     @DeleteMapping("/{id}")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "deleteProperty")
     public ResponseEntity<Void> deleteProperty(@PathVariable Integer id) {
       propertyService.deleteProperty(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/isBooked")
+    @RateLimit(limit = 80, duration = 60, keyPrefix = "isBooked")
     public ResponseEntity<Boolean> isBooked(@PathVariable Integer id) {
         return ResponseEntity.ok(propertyService.isBooked(id));
     }
-
-
-
-
 
     //#############################################################
 
