@@ -1,6 +1,7 @@
 package com.example.Properties.Property;
 
 import com.example.Properties.Annotations.DistributedLock;
+import com.example.Properties.PaymentAndBookingClient;
 import com.example.Properties.Property.DTO.*;
 import com.example.Properties.Property.Model.Property;
 import com.example.Properties.Redis.RedisClient;
