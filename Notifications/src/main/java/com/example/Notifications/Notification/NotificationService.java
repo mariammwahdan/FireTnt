@@ -1,17 +1,14 @@
 package com.example.Notifications.Notification;
-
-
+import com.example.Notifications.Annotations.DistributedLock;
 import com.example.Notifications.Notification.DTO.CreateNotificationDTO;
-
-
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class NotificationService {
@@ -37,6 +34,12 @@ public class NotificationService {
         return notificationRepository.findByRecipientId(userId);
     }
 
+    @DistributedLock(
+            keyPrefix = "notificationCreate",
+            keyIdentifierExpression = "#dto.recipientId",
+            leaseTime = 15,
+            timeUnit = TimeUnit.SECONDS
+    )
     @Transactional
     public Notification create(CreateNotificationDTO dto) {
         Notification n = new Notification();
@@ -91,6 +94,12 @@ public class NotificationService {
 //        }
 //    }
 
+    @DistributedLock(
+            keyPrefix = "notificationRead",
+            keyIdentifierExpression = "#id",
+            leaseTime = 10,
+            timeUnit = TimeUnit.SECONDS
+    )
     @Transactional
     public Notification markAsRead(Long id) {
         Notification n = getById(id);
@@ -112,7 +121,12 @@ public class NotificationService {
 //    }
 
 
-
+    @DistributedLock(
+            keyPrefix = "notificationDelete",
+            keyIdentifierExpression = "#id",
+            leaseTime = 10,
+            timeUnit = TimeUnit.SECONDS
+    )
     @Transactional
     public void delete(Long id) {
         notificationRepository.deleteById(id);
