@@ -22,4 +22,28 @@ public class CreateNotificationDTO {
         this.recipientEmail = recipientEmail;
         this.message = message;
     }
+
+    public @NotNull Long getRecipientId() {
+        return recipientId;
+    }
+
+    public void setRecipientId(@NotNull Long recipientId) {
+        this.recipientId = recipientId;
+    }
+
+    public @NotNull String getRecipientEmail() {
+        return recipientEmail;
+    }
+
+    public void setRecipientEmail(@NotNull String recipientEmail) {
+        this.recipientEmail = recipientEmail;
+    }
+
+    public @NotNull String getMessage() {
+        return message;
+    }
+
+    public void setMessage(@NotNull String message) {
+        this.message = message;
+    }
 }
