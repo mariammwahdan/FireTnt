@@ -1,8 +1,8 @@
 package com.example.Notifications.Aspects;
 
 import com.example.Notifications.Annotations.RateLimit;
-import com.example.Exceptions.RateLimitExceededException;
-import com.example.Redis.RedisClient;
+import com.example.Notifications.Exceptions.RateLimitExceededException;
+import com.example.Notifications.Redis.RedisClient;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
