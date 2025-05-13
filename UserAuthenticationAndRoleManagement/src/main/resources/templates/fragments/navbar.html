@@ -25,7 +25,7 @@
             <li><a href="/contact" class="text-white">Contact Us</a></li>
 
             <!-- Role-based center links -->
-            <li th:if="${role == 'ADMIN'}"><a href="/admin/panel" class="text-white">Admin Panel</a></li>
+            <li th:if="${role == 'ADMIN'}"><a href="/api/admin/admin" class="text-white">Admin Panel</a></li>
             <li th:if="${role == 'HOST'}"><a href="/host/properties" class="text-white">My Listings</a></li>
             <li th:if="${role == 'GUEST'}"><a href="/guest/bookings" class="text-white">My Reservations</a></li>
             <li th:if="${role=='GUEST'}">

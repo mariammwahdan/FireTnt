@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>My Bookings</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <title>My Bookings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen pt-20 px-6">
 
@@ -11,43 +11,40 @@
 
 <!-- Container -->
 <div class="max-w-7xl mx-auto">
-  <h1 th:if="${bookings.size() > 0}" class="text-2xl font-bold mb-6 text-center">My Bookings</h1>
+    <h1 th:if="${bookings.size() > 0}" class="text-3xl font-bold mb-8 text-center text-gray-800">My Bookings</h1>
 
-    <h1 th:if="${bookings.size() == 0}" class="text-4xl font-bold mb-10 text-center mt-20">You have no bookings yet.</h1>
+    <h1 th:if="${bookings.size() == 0}" class="text-3xl font-bold text-center mt-24 text-gray-500">You have no bookings yet.</h1>
 
+    <!-- Booking Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-    <!-- Each Booking -->
-    <div th:each="booking : ${bookings}" class="p-4 shadow-md bg-white border rounded-lg">
-   <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.propertyTitle}"></span></h3>
-        <p class="text-sm text-gray-600 mb-1">Location: <span th:text="${booking.propertyLocation}"></span></p>
-        <p class="text-sm text-gray-600 mb-1">Property Type: <span th:text="${booking.propertyType}"></span></p>
-     <h3 class="text-lg font-bold text-blue-600 mb-1"><span th:text="${booking.propertyDescription}"></span></h3>
-      <p class="text-sm text-gray-600 mb-1">Check-in: <span th:text="${#dates.format(booking.getBooking().checkIn, 'yyyy-MM-dd')}">2025-05-01</span></p>
-      <p class="text-sm text-gray-600 mb-1">Check-out: <span th:text="${#dates.format(booking.getBooking().checkOut, 'yyyy-MM-dd')}">2025-05-05</span></p>
-      <p class="text-sm text-gray-600 mb-1">Nights: <span th:text="${booking.getBooking().noOfNights}">4</span></p>
-      <p class="text-sm text-gray-600 mb-1">Price: EGP <span th:text="${booking.getBooking().price}">1200.00</span></p>
-      <p class="text-sm" th:classappend="${booking.getBooking().status.name() == 'CANCELLED'} ? 'text-red-600' : 'text-green-600'">
-        Status: <span th:text="${booking.getBooking().status}"></span>
-      </p>
-<!--        <p class="text-sm text-green-600 mb-1">Payment Status: <span th:text="${paymentStatus}"></span></p>-->
-<!--      <form th:if="${booking.booking.status.name() != 'CANCELLED'}"-->
-<!--            th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.id})}" method="post">-->
-<!--        <button type="submit"-->
-<!--                class="w-full text-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded mt-4">-->
-<!--          Cancel Booking-->
-<!--        </button>-->
-<!--      </form>-->
+        <div th:each="booking : ${bookings}" class="p-6 shadow-lg bg-white border border-gray-200 rounded-xl">
+            <h3 class="text-xl font-semibold text-blue-700 mb-3" th:text="${booking.propertyTitle}">Property Title</h3>
 
-        <form th:if="${booking.booking.status.name() != 'CANCELLED'}" th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.bookingId})}" method="post">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg">
-                Cancel Booking
-            </button>
-        </form>
+            <div class="space-y-1 text-sm text-gray-700">
+                <div><span class="font-medium">Location:</span> <span th:text="${booking.propertyLocation}"></span></div>
+                <div><span class="font-medium">Type:</span> <span th:text="${booking.propertyType}"></span></div>
+                <div><span class="font-medium">Description:</span> <span th:text="${booking.propertyDescription}"></span></div>
+                <div><span class="font-medium">Check-in:</span>
+                    <span th:text="${#dates.format(booking.booking.checkIn, 'yyyy-MM-dd')}">2025-05-01</span>
+                </div>
+                <div><span class="font-medium">Check-out:</span>
+                    <span th:text="${#dates.format(booking.booking.checkOut, 'yyyy-MM-dd')}">2025-05-05</span>
+                </div>
+                <div><span class="font-medium">Nights:</span> <span th:text="${booking.booking.noOfNights}">4</span></div>
+                <div><span class="font-medium">Price:</span> EGP <span th:text="${booking.booking.price}">1200.00</span></div>
+                 </div>
 
-
-
+            <form th:if="${booking.booking.status.name() != 'CANCELLED'}"
+                  th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.bookingId})}"
+                  method="post"
+                  class="mt-4">
+                <button type="submit"
+                        class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-md">
+                    Cancel Booking
+                </button>
+            </form>
+        </div>
     </div>
-  </div>
 </div>
 </body>
 </html>

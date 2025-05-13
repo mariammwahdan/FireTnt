@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 
 
 @Controller
@@ -95,7 +96,10 @@ List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
                                  RedirectAttributes redirectAttributes) {
         hostService.deleteProperty(propertyId);
         redirectAttributes.addFlashAttribute("success", "Property deleted successfully!");
-        return "redirect:/host/properties";
+        if (Objects.equals(hostService.getRoleName(), "HOST")) {
+            return "redirect:/host/properties";
+        }
+        return "redirect:/api/users/properties/all";
     }
 
 //    private FirebasePrincipal getFirebasePrincipal(Authentication auth) {
