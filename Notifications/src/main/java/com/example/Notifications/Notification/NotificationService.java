@@ -55,44 +55,7 @@ public class NotificationService {
         return saved;  // Return the notification object
     }
 
-//    private void sendMailInternal(Notification n) {
-//        try {
-//            MimeMessage mime = mailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(mime, false, "UTF-8");
-//            helper.setTo(n.getRecipientEmail());
-//            helper.setSubject("Notification #" + n.getId());
-//            helper.setText(n.getMessage(), false);
-//
-//            mailSender.send(mime);
-//
-//            n.setEmailStatus(true);
-//            notificationRepository.save(n);
-//
-//        } catch (MessagingException ex) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.INTERNAL_SERVER_ERROR,
-//                    "Email send failed", ex
-//            );
-//        }
-//    }
 
-//    private void sendMailInternal(Notification notification) {
-//        try {
-//            MimeMessage mime = mailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(mime, false, "UTF-8");
-//            helper.setTo(notification.getRecipientEmail());
-//            helper.setSubject("Notification from FireTnt");
-//            helper.setText(notification.getMessage(), false);
-//
-//            mailSender.send(mime);
-//
-//            notification.setEmailStatus(true);
-//            notificationRepository.save(notification);
-//
-//        } catch (MessagingException ex) {
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Email send failed", ex);
-//        }
-//    }
 
     @DistributedLock(
             keyPrefix = "notificationRead",
