@@ -1,4 +1,6 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest;
+import com.example.Notifications.Notification.DTO.CreateNotificationDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.Client.BookingAndPaymentClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.NotificationsClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.*;
 import com.example.UserAuthenticationAndRoleManagement.Host.HostService;
@@ -30,16 +32,18 @@ public class GuestController {
     private final UserService userService;
     private final HostService hostService;
     private final NotificationsClient notifClient;
+    private final BookingAndPaymentClient bookingAndPaymentClient;
 
 
 
 
-    public GuestController(GuestService guestService, UserService userService, HostService hostService, NotificationsClient notifClient) {
+    public GuestController(GuestService guestService, UserService userService, HostService hostService, NotificationsClient notifClient, BookingAndPaymentClient bookingAndPaymentClient) {
         this.guestService = guestService;
         this.userService = userService;
         this.hostService = hostService;
 
         this.notifClient = notifClient;
+        this.bookingAndPaymentClient = bookingAndPaymentClient;
     }
 
     @GetMapping("/properties/{propertyId}/book")
@@ -139,28 +143,28 @@ public class GuestController {
         return "booking-confirmation";
     }
 
-    @PostMapping("/properties/{propertyId}/book/{bookingId}/pay")
-    public String payForBooking(@PathVariable Long propertyId,
-                                @PathVariable Long bookingId,
-                                Model model){
-
-        // Retrieve booking info to get the amount
-        BookingDTO booking = guestService.getBookingById(bookingId);
-
-        // Create PaymentDTO
-        PaymentDTO payment = new PaymentDTO();
-        payment.setBookingId(bookingId);
-        payment.setAmount(booking.getPrice());
-        payment.setStatus(PaymentDTO.PaymentStatus.COMPLETED);
-        payment.setCreatedAt(LocalDateTime.now());
-
-        // Call the service to persist the payment
-        guestService.createPayment(payment);
-
-        // Redirect to reservations page
-        return "redirect:/guest/bookings?paymentStatus=SUCCESS";
-
-    }
+//    @PostMapping("/properties/{propertyId}/book/{bookingId}/pay")
+//    public String payForBooking(@PathVariable Long propertyId,
+//                                @PathVariable Long bookingId,
+//                                Model model){
+//
+//        // Retrieve booking info to get the amount
+//        BookingDTO booking = guestService.getBookingById(bookingId);
+//
+//        // Create PaymentDTO
+//        PaymentDTO payment = new PaymentDTO();
+//        payment.setBookingId(bookingId);
+//        payment.setAmount(booking.getPrice());
+//        payment.setStatus(PaymentDTO.PaymentStatus.COMPLETED);
+//        payment.setCreatedAt(LocalDateTime.now());
+//
+//        // Call the service to persist the payment
+//        guestService.createPayment(payment);
+//
+//        // Redirect to reservations page
+//        return "redirect:/guest/bookings?paymentStatus=SUCCESS";
+//
+//    }
 
 //    @GetMapping("/guest/my-notifications")
 //    public String showNotifications(
@@ -183,6 +187,40 @@ public class GuestController {
 //        // 5 render template src/main/resources/templates/myNotifications.html
 //        return "myNotifications";
 //    }
+
+    @PostMapping("/properties/{propertyId}/book/{bookingId}/pay")
+    public String payForBooking(
+            @PathVariable Long propertyId,
+            @PathVariable Long bookingId,
+            Model model
+    ) {
+        // Retrieve booking info to get the amount
+        BookingDTO booking = bookingAndPaymentClient.getBookingById(bookingId);
+        GuestPropertyDTO property = guestService.getPropertyById(propertyId);
+
+        // Create PaymentDTO
+        PaymentDTO payment = new PaymentDTO();
+        payment.setBookingId(bookingId);
+        payment.setAmount(booking.getPrice());
+        payment.setStatus(PaymentDTO.PaymentStatus.COMPLETED);
+        payment.setCreatedAt(LocalDateTime.now());
+
+        // Call the service to persist the payment
+        bookingAndPaymentClient.createPayment(payment);
+
+        // After successful payment, send notification
+        Long guestId = userService.findUserIdByFirebaseUid(booking.getGuestId());
+        String email = userService.fetchById(guestId).getEmail();
+        String msg = String.format(
+                "Thank you for your payment for property %s! ",
+                property.getTitle()
+        );
+        CreateNotificationDTO notifDto = new CreateNotificationDTO(guestId, email, msg);
+        notifClient.createNotification(notifDto);
+
+        // Redirect to reservations page
+        return "redirect:/guest/bookings?paymentStatus=SUCCESS";
+    }
 
     @GetMapping("/my-notifications")
     public String showNotifications(HttpSession session, Model model) {

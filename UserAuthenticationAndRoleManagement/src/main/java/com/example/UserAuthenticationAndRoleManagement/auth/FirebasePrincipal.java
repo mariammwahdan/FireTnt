@@ -40,7 +40,6 @@ public class FirebasePrincipal implements UserDetails {
 //    }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Java 9+
         return List.of(
                 new SimpleGrantedAuthority("ROLE_" + role.name())
         );

@@ -1,5 +1,6 @@
 package com.example.UserAuthenticationAndRoleManagement.auth.Dto;
 
+import com.example.UserAuthenticationAndRoleManagement.User.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,6 +11,8 @@ public class LoginResponse {
     private String email;
     private String idToken;
     private String refreshToken;
+
+
 
     public String getuserFirebaseId() {
         return userFirebaseId;
