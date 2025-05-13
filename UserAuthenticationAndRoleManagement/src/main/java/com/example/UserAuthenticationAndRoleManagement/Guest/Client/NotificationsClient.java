@@ -1,6 +1,7 @@
 package com.example.UserAuthenticationAndRoleManagement.Guest.Client;
 
 
+import com.example.Notifications.Notification.DTO.CreateNotificationDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.NotificationDTO;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,14 @@ public class NotificationsClient {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(Arrays.asList(arr));
+    }
+
+    public NotificationDTO createNotification(CreateNotificationDTO dto) {
+        return rest.postForObject(
+                base + "/send-welcome-message/json",
+                dto,
+                NotificationDTO.class
+        );
     }
 }
 

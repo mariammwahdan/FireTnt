@@ -12,7 +12,7 @@ public class UserAuthClient {
         this.tpl = builder.build();
     }
     public Long fetchUserIdByFirebaseUid(String uid) {
-        // e.g. GET http://localhost:8080/api/users/by-firebase-uid?uid={uid}
+
         return tpl.getForObject(
                 "http://localhost:8080/api/users/by-firebase-uid?uid={uid}",
                 Long.class,
