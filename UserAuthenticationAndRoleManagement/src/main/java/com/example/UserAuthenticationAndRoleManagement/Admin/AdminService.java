@@ -98,7 +98,10 @@ public class AdminService {
     public List<User> viewAllUsers() {
         return userRepo.findAll();
     }
-
+    @Transactional(readOnly = true)
+    public List<User> searchUsers(String keyword) {
+        return userRepo.searchByName(keyword);
+    }
     @Transactional(readOnly = true)
     public List<Booking> viewAllBookings() {
         return bookingRepo.findAllBookings();
@@ -120,19 +123,28 @@ public class AdminService {
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        if (u.getRole() == Role.GUEST) {
-            bookingRepo.cancelByGuestId(userId);
-        }
+//        if (u.getRole() == Role.GUEST) {
+//            bookingRepo.cancelByGuestId(userId);
+//        }
 
-        if (u.getRole() == Role.HOST) {
-            List<Map<String,Object>> props = propertyRepo.findByHost(userId);
-            for (Map<String,Object> p : props) {
-                Integer pid = (Integer)p.get("propertyId");
-                propertyRepo.approve(Long.valueOf(pid));
-            }
-        }
+//        if (u.getRole() == Role.HOST) {
+//            List<Map<String,Object>> props = propertyRepo.findByHost(userId);
+//            for (Map<String,Object> p : props) {
+//                Integer pid = (Integer)p.get("propertyId");
+//                propertyRepo.approve(Long.valueOf(pid));
+//            }
+//        }
 
         u.setBanned(true);
+        userRepo.save(u);
+        return true;
+    }
+    @Transactional
+    public boolean unbanUser(Long userId) {
+        User u = userRepo.findById(userId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        u.setBanned(false);
         userRepo.save(u);
         return true;
     }
