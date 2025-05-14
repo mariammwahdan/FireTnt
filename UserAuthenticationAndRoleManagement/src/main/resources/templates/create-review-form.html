@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave a Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+<!-- Navbar -->
+<div th:replace="fragments/navbar :: navbar(role=${role})"></div>
+
+<!-- Review Form Card -->
+<div class="max-w-xl mx-auto bg-white mt-20 p-6 rounded-2xl shadow-lg">
+    <h2 class="text-2xl font-bold text-center mb-6">Leave a Review</h2>
+
+
+    <form th:action="@{/guest/reviews/create/{propertyId}(propertyId=${propertyId})}"
+          th:object="${reviewForm}" method="post" class="space-y-4">
+
+        <!-- Rating -->
+        <div>
+            <label class="block font-medium mb-1">Rating (1 to 5)</label>
+            <select th:field="*{rating}" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                <option value="" disabled selected>Select rating</option>
+                <option th:each="i : ${#numbers.sequence(1,5)}" th:value="${i}" th:text="${i}"></option>
+            </select>
+        </div>
+
+        <!-- Review Text -->
+        <div>
+            <label class="block font-medium mb-1">Your Review</label>
+            <textarea th:field="*{reviewText}" rows="4" placeholder="Share your experience..." class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400" required></textarea>
+        </div>
+
+        <!-- Hidden Guest ID -->
+        <input type="hidden" th:field="*{guestId}"/>
+
+        <!-- Submit -->
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl">Submit Review</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

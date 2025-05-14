@@ -97,7 +97,12 @@ public class AdminService {
     @Transactional(readOnly = true)
     public List<User> viewAllUsers() {
         return userRepo.findAll();
+    }@Transactional(readOnly = true)
+    public List<User> viewAllUsersExceptADMIN() {
+        return userRepo.findAllExcludingAdmin();
     }
+
+
     @Transactional(readOnly = true)
     public List<User> searchUsers(String keyword) {
         return userRepo.searchByName(keyword);

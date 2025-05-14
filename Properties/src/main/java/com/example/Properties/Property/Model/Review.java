@@ -3,14 +3,14 @@ package com.example.Properties.Property.Model;
 
 public class Review {
     private long id;
-    private long guestId;
+    private String guestId;
     private long propertyId;
     private String reviewText;
-    private int rating;
+    private Integer rating;
 
     public Review() {
     }
-    public Review(long guestId, long propertyId, String reviewText, int rating) {
+    public Review(String guestId, long propertyId, String reviewText, int rating) {
         this.guestId = guestId;
         this.propertyId = propertyId;
         this.reviewText = reviewText;
@@ -25,11 +25,11 @@ public class Review {
         this.id = id;
     }
 
-    public long getGuestId() {
+    public String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(long guestId) {
+    public void setGuestId(String guestId) {
         this.guestId = guestId;
     }
 
@@ -49,11 +49,11 @@ public class Review {
         this.reviewText = reviewText;
     }
 
-    public int getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
     }
 }

@@ -2,6 +2,8 @@ package com.example.UserAuthenticationAndRoleManagement.Host.Client;
 
 
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.CreateReviewDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.ReviewDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -70,7 +72,7 @@ public class PropertyClient {
         restTemplate.delete(url);
     }
 
-    public List<BookingDTO> getBookingsByPropertyId(String propertyId) {
+    public List<BookingDTO> getBookingsByPropertyId(long propertyId) {
         String url = bookingServiceUrl + "/property/" + propertyId;
         ResponseEntity<List<BookingDTO>> response = restTemplate.exchange(
                 url,
@@ -81,4 +83,16 @@ public class PropertyClient {
 
         return response.getBody();
     }
+    public List<ReviewDTO> getAllReviewsByPropertyId(long propertyId) {
+        String url = propertyServiceUrl +"/"+ propertyId + "/reviews";
+        ResponseEntity<List<ReviewDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<ReviewDTO>>() {}
+        );
+        return response.getBody();
+
+    }
+
 }

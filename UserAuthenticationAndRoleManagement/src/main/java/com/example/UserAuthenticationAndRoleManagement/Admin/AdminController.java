@@ -24,7 +24,7 @@ public class AdminController {
     @GetMapping("/admin")
     public String showAdminDashboard(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
         List<User> users = (keyword == null || keyword.isEmpty())
-                ? admin.viewAllUsers()
+                ? admin.viewAllUsersExceptADMIN()
                 : admin.searchUsers(keyword);
         model.addAttribute("users", users);
         model.addAttribute("keyword", keyword);

@@ -143,51 +143,6 @@ public class GuestController {
         return "booking-confirmation";
     }
 
-//    @PostMapping("/properties/{propertyId}/book/{bookingId}/pay")
-//    public String payForBooking(@PathVariable Long propertyId,
-//                                @PathVariable Long bookingId,
-//                                Model model){
-//
-//        // Retrieve booking info to get the amount
-//        BookingDTO booking = guestService.getBookingById(bookingId);
-//
-//        // Create PaymentDTO
-//        PaymentDTO payment = new PaymentDTO();
-//        payment.setBookingId(bookingId);
-//        payment.setAmount(booking.getPrice());
-//        payment.setStatus(PaymentDTO.PaymentStatus.COMPLETED);
-//        payment.setCreatedAt(LocalDateTime.now());
-//
-//        // Call the service to persist the payment
-//        guestService.createPayment(payment);
-//
-//        // Redirect to reservations page
-//        return "redirect:/guest/bookings?paymentStatus=SUCCESS";
-//
-//    }
-
-//    @GetMapping("/guest/my-notifications")
-//    public String showNotifications(
-//            @AuthenticationPrincipal FirebasePrincipal principal,
-//            Model model
-//    ) {
-//        // 1 pull Firebase UID from security context
-//        String firebaseUid = principal.getUid();
-//
-//        // 2 translate to local userId
-//        Long userId = userService.findUserIdByFirebaseUid(firebaseUid);
-//
-//        // 3 fetch notifications via REST JSON client
-//        List<NotificationDto> notes = userService.getNotifications(userId);
-//
-//        // 4 bind to Thymeleaf model
-//        model.addAttribute("notifications", notes);
-//        model.addAttribute("role", "GUEST");
-//
-//        // 5 render template src/main/resources/templates/myNotifications.html
-//        return "myNotifications";
-//    }
-
     @PostMapping("/properties/{propertyId}/book/{bookingId}/pay")
     public String payForBooking(
             @PathVariable Long propertyId,
@@ -206,7 +161,7 @@ public class GuestController {
         payment.setCreatedAt(LocalDateTime.now());
 
         // Call the service to persist the payment
-        bookingAndPaymentClient.createPayment(payment);
+        guestService.createPayment(payment);
 
         // After successful payment, send notification
         Long guestId = userService.findUserIdByFirebaseUid(booking.getGuestId());
@@ -234,5 +189,29 @@ public class GuestController {
         model.addAttribute("notifications", notes);
         model.addAttribute("role", "GUEST");
         return "myNotifications";  // Thymeleaf template under src/main/resources/templates/
+    }
+    @GetMapping("/reviews/create/{propertyId}")
+    public String showCreateReviewForm(@PathVariable Long propertyId, Model model) {
+        ReviewDTO reviewForm = new ReviewDTO();
+        reviewForm.setPropertyId(propertyId);
+        String roleName = hostService.getRoleName();
+        model.addAttribute("role", roleName);
+        model.addAttribute("reviewForm", reviewForm);
+        return "create-review-form"; // Thymeleaf template
+    }
+    @PostMapping("/reviews/create/{propertyId}")
+        public String createReview(@Valid @ModelAttribute("reviewForm") CreateReviewDTO dto,
+                               BindingResult result,
+                               @PathVariable Long propertyId,
+                               Model model, Principal principal) {
+        if (result.hasErrors()) {
+            return "create-review-form";
+        }
+        String guestId = hostService.getUidFromPrincipal(principal);
+        dto.setGuestId(guestId);
+        dto.setPropertyId(propertyId);
+        guestService.createReview(propertyId,dto);
+        model.addAttribute("message", "Review submitted successfully!");
+        return "redirect:/api/users/properties/" + propertyId + "/details";
     }
 }

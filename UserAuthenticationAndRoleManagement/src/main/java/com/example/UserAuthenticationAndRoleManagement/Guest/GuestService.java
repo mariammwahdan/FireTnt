@@ -4,6 +4,7 @@ import com.example.UserAuthenticationAndRoleManagement.Guest.Client.BookingAndPa
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.GuestPropertyClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.Client.NotificationsClient;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.CreateReviewDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.GuestPropertyDTO;
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.PaymentDTO;
 import com.example.UserAuthenticationAndRoleManagement.User.UserService;
@@ -36,20 +37,11 @@ public GuestPropertyDTO getPropertyById(long propertyId) {
     }
     public  Long createBooking(BookingDTO bookingDTO) {
         return bookingAndPaymentClient.createBooking(bookingDTO);
-      //  markPropertyAsBooked(bookingDTO.getPropertyId());
-    }
-    public void markPropertyAsBooked(Long propertyId) {
-        GuestPropertyDTO property = guestPropertyClient.getPropertyById(propertyId);
-        property.setBooked(true);
-        guestPropertyClient.updateProperty(propertyId, property);
-    }
-    public void cancelBooking(Long bookingId) {
-        BookingDTO cancelledBooking = bookingAndPaymentClient.cancelBooking(bookingId);
 
-//        // 2. Update the property to set booked = false
-//        GuestPropertyDTO property = guestPropertyClient.getPropertyById(cancelledBooking.getPropertyId());
-//        property.setBooked(false);
-//         guestPropertyClient.updateProperty(property.getPropertyId(), property);
+    }
+
+    public void cancelBooking(Long bookingId) {
+        bookingAndPaymentClient.cancelBooking(bookingId);
   }
     public void refundPayment(Long bookingId) {
         PaymentDTO payment = new PaymentDTO();
@@ -104,5 +96,8 @@ public GuestPropertyDTO getPropertyById(long propertyId) {
         notificationsClient.createNotification(notifDto);
 
         return bookingId;
+    }
+    public void createReview(long propertyId, CreateReviewDTO createReviewDTO) {
+        guestPropertyClient.createReview(propertyId, createReviewDTO);
     }
 }

@@ -1,4 +1,5 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -102,11 +103,16 @@ List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
         return "redirect:/api/users/properties/all";
     }
 
-//    private FirebasePrincipal getFirebasePrincipal(Authentication auth) {
-//        if (auth.getPrincipal() instanceof FirebasePrincipal fp) {
-//            return fp;
-//        }
-//        throw new IllegalStateException("Invalid authentication principal");
-//    }
+@GetMapping("/bookings")
+public String viewBookings(Model model, Principal principal) {
+    String hostId = getHostIdFromPrincipal(principal);
+    List<BookingDTO> bookings = hostService.getAllBookingsForHost(hostId);
+    String roleName = hostService.getRoleName();
+    List<PropertyDTO> properties = hostService.getPropertiesForHost(hostId);
 
+    model.addAttribute("properties", properties);
+    model.addAttribute("role", roleName);
+    model.addAttribute("bookings", bookings);
+    return "host-bookings";
+}
 }

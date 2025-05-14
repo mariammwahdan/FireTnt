@@ -40,7 +40,7 @@ public class ReviewService {
     }
 
     @DistributedLock(keyPrefix = "review:create", keyIdentifierExpression = "#propertyId + ':' + #dto.guestId", leaseTime = 30, timeUnit = TimeUnit.SECONDS)
-    public Review createReview(Integer propertyId, CreateReviewWithPropertyIdDTO dto) {
+    public Review createReview(Integer propertyId, CreateReviewDTO dto) {
         Review review = new Review(dto.getGuestId(), propertyId, dto.getReviewText(), dto.getRating());
         Review saved = reviewRepository.save(review);
         invalidateCaches(propertyId);
@@ -137,11 +137,11 @@ public class ReviewService {
         invalidateCaches(review.getPropertyId());
     }
 
-    public List<Review> getReviewsByGuestId(long guestId) {
+    public List<Review> getReviewsByGuestId(String guestId) {
         return reviewRepository.findByGuestId(guestId);
     }
 
-    public List<Review> getReviewsByGuestAndProperty(long guestId, long propertyId) {
+    public List<Review> getReviewsByGuestAndProperty(String guestId, long propertyId) {
         return reviewRepository.findByGuestIdAndPropertyId(guestId, propertyId);
     }
 

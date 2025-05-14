@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class CreateReviewWithPropertyIdDTO {
 
     @NotNull
-    private Integer guestId;
+    private String guestId;
 
     @NotBlank
     private String reviewText;
@@ -17,12 +17,14 @@ public class CreateReviewWithPropertyIdDTO {
     @Min(1)
     @Max(5)
     private Integer rating;
+    private long propertyId;
 
-    public @NotNull Integer getGuestId() {
+
+    public @NotNull String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(@NotNull Integer guestId) {
+    public void setGuestId(@NotNull String guestId) {
         this.guestId = guestId;
     }
 

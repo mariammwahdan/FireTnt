@@ -1,27 +1,23 @@
 package com.example.Reviews.Review.DTO;
-import jakarta.validation.constraints.*;
+
 
 public class CreateReviewDTO {
 
-    @Positive(message = "Guest ID must be a positive number")
-    private long guestId;
 
-    @Positive(message = "Property ID must be a positive number")
     private long propertyId;
+    private String guestId;
 
-    @NotBlank(message = "Review text cannot be blank")
     private String reviewText;
 
-    @Min(value = 1, message = "Rating must be at least 1")
-    @Max(value = 5, message = "Rating must be at most 5")
-    private int rating;
 
+
+    private Integer rating;
     // Getters and Setters
-    public long getGuestId() {
+    public String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(long guestId) {
+    public void setGuestId(String guestId) {
         this.guestId = guestId;
     }
 

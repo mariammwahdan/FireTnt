@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,11 +16,13 @@
 <!--        <span class="block sm:inline" th:text="${success}"></span>-->
     <!-- Search Form -->
     <form method="get" th:action="@{/api/admin/admin}" class="flex justify-center mb-6">
-        <input type="text" name="keyword"
-               placeholder="Search users..."
-               th:value="${keyword}"
-               class="w-full max-w-sm px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+        <label>
+            <input type="text" name="keyword"
+                   placeholder="Search users..."
+                   th:value="${keyword}"
+                   class="w-full max-w-sm px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+        </label>
         <button type="submit"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg font-semibold">
             Search
@@ -35,6 +37,7 @@
                 <th class="py-3 px-6 text-left">First Name</th>
                 <th class="py-3 px-6 text-left">Last Name</th>
                 <th class="py-3 px-6 text-left">Email</th>
+                <th class="py-3 px-6 text-left">Role</th>
                 <th class="py-3 px-6 text-left">Actions</th>
             </tr>
             </thead>
@@ -43,6 +46,7 @@
                 <td class="py-3 px-6" th:text="${user.getFirstName()}"></td>
                 <td class="py-3 px-6" th:text="${user.getLastName()}"></td>
                 <td class="py-3 px-6" th:text="${user.getEmail()}"></td>
+                <td class="py-3 px-6" th:text="${user.getRole()}"></td>
                 <td   class="py-3 px-6">
                     <a th:if="${!user.isBanned()}" th:href="@{/api/admin/users/{id}/ban(id=${user.userId})}"
                        class="inline-block bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded">

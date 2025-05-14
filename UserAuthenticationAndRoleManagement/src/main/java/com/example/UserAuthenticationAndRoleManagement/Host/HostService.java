@@ -1,7 +1,10 @@
 package com.example.UserAuthenticationAndRoleManagement.Host;
 
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.BookingDTO;
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.ReviewDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.Client.PropertyClient;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
+import com.example.UserAuthenticationAndRoleManagement.User.User;
 import com.example.UserAuthenticationAndRoleManagement.User.UserService;
 import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.security.Principal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,16 +41,6 @@ public String getRoleName(){
         return userService.getRoleName();
 }
 
-//    public String getRoleNameFromPrincipal() {
-//        var auth = SecurityContextHolder.getContext().getAuthentication();
-//        if (auth != null && auth.getPrincipal() instanceof FirebasePrincipal fp) {
-//            User user = userService.findByEmail(fp.getEmail());
-//            return user.getRole().name();
-//        }
-//        throw new IllegalStateException("No valid FirebasePrincipal in context");
-//    }
-
-
     // ###################################################
 
 
@@ -72,4 +66,19 @@ public String getRoleName(){
     public List<PropertyDTO> getAllProperties() {
         return propertyClient.getProperties();
     }
+    public List<BookingDTO> getAllBookingsForHost(String hostId) {
+        List<PropertyDTO> properties = getPropertiesForHost(hostId);
+        List<BookingDTO> allBookings = new ArrayList<>();
+        for (PropertyDTO property : properties) {
+            List<BookingDTO> bookings = propertyClient.getBookingsByPropertyId(property.getPropertyId());
+            allBookings.addAll(bookings);
+        }
+        return allBookings;
+    }
+    public List<ReviewDTO> getReviewsByPropertyId(Integer propertyId) {
+        System.out.println(propertyClient.getAllReviewsByPropertyId(propertyId));
+        return propertyClient.getAllReviewsByPropertyId(propertyId);
+    }
+
+
 }

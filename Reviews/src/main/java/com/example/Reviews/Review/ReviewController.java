@@ -35,7 +35,7 @@ public class ReviewController {
     @RateLimit(limit = 80, duration = 60, keyPrefix = "createReview")
     public ResponseEntity<Review> createReview(
             @PathVariable Integer propertyId,
-            @Valid @RequestBody CreateReviewWithPropertyIdDTO dto) {
+            @Valid @RequestBody CreateReviewDTO dto) {
 
         Review createdReview = reviewService.createReview(propertyId, dto);
         return ResponseEntity.ok(createdReview);
@@ -92,7 +92,7 @@ public class ReviewController {
     // 4. Get Reviews by Guest ID
     @GetMapping("/guest/{guestId}")
     @RateLimit(limit = 80, duration = 60, keyPrefix = "getReviewsByGuestId")
-    public ResponseEntity<List<Review>> getReviewsByGuestId(@PathVariable long guestId) {
+    public ResponseEntity<List<Review>> getReviewsByGuestId(@PathVariable String guestId) {
         List<Review> reviews = reviewService.getReviewsByGuestId(guestId);
         return ResponseEntity.ok(reviews);
     }
@@ -109,7 +109,7 @@ public class ReviewController {
     @GetMapping("/filter")
     @RateLimit(limit = 80, duration = 60, keyPrefix = "getReviewsByGuestAndProperty")
     public ResponseEntity<List<Review>> getReviewsByGuestAndProperty(
-            @RequestParam long guestId,
+            @RequestParam String guestId,
             @RequestParam long propertyId
     ) {
         List<Review> reviews = reviewService.getReviewsByGuestAndProperty(guestId, propertyId);

@@ -41,6 +41,12 @@
             <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
                     onclick="location.href='/host/properties'">My Properties</button>
         </div>
+        <div th:if="${role == 'HOST'}" class="bg-white shadow-md rounded-lg p-6 hover:shadow-xl transition">
+            <h2 class="text-xl font-semibold mb-2">Host</h2>
+            <p class="text-gray-600 mb-4">List your property and start earning from guests today.</p>
+            <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                    onclick="location.href='/host/bookings'">My Properties Bookings</button>
+        </div>
 
         <!-- My Bookings -->
         <div th:if="${role == 'GUEST'}" class="bg-white shadow-md rounded-lg p-6 hover:shadow-xl transition">

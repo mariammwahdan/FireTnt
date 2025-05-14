@@ -1,5 +1,6 @@
 package com.example.UserAuthenticationAndRoleManagement.User;
 
+import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.ReviewDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.DTO.PropertyDTO;
 import com.example.UserAuthenticationAndRoleManagement.Host.HostService;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.CreateUserDTO;
@@ -73,6 +74,7 @@ public class UserController {
     public String getAllProperties(Model model) {
         List<PropertyDTO> properties  =hostService.getAllProperties();
         String roleName =  hostService.getRoleName();
+
         model.addAttribute("role", roleName);
         model.addAttribute("properties", properties);
         return "all-properties-list";
@@ -84,6 +86,9 @@ public class UserController {
         String roleName = hostService.getRoleName();
         String hostId = property.getHostId();
         User user= svc.fetchByFirebaseUid(hostId);
+        List<ReviewDTO> reviews = hostService.getReviewsByPropertyId(id);
+        System.out.println(reviews);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("firstname", user.getFirstName());
         model.addAttribute("lastname", user.getLastName());
         model.addAttribute("role", roleName);

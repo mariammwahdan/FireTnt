@@ -8,14 +8,18 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private long guestId;
     private long propertyId;
+    private String guestId;
+
     private String reviewText;
-    private int rating;
+
+
+
+    private Integer rating;
     
     public Review() {
     }
-    public Review(long guestId, long propertyId, String reviewText, int rating) {
+    public Review(String guestId, long propertyId, String reviewText, int rating) {
         this.guestId = guestId;
         this.propertyId = propertyId;
         this.reviewText = reviewText;
@@ -30,11 +34,11 @@ public class Review {
         this.id = id;
     }
 
-    public long getGuestId() {
+    public String getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(long guestId) {
+    public void setGuestId(String guestId) {
         this.guestId = guestId;
     }
 

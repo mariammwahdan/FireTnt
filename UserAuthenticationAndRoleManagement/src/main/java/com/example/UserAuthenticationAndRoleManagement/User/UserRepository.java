@@ -14,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<User> searchByName(@Param("keyword") String keyword);
+    @Query("SELECT u FROM User u WHERE u.role <> 'ADMIN'")
+    List<User> findAllExcludingAdmin();
 
     boolean existsByEmail(String email);
     Optional<User> findByFirebaseUid(String firebaseUid);
