@@ -118,12 +118,46 @@ public class GuestController {
         return "guest-reservations";
     }
 
+//    @PostMapping("/bookings/{bookingId}/cancel")
+//    public String cancelBooking(@PathVariable Long bookingId, Principal principal) {
+//        guestService.cancelBooking(bookingId);
+////guestService.refundPayment(bookingId);
+//        return "redirect:/guest/bookings"; // Redirect to MY RESERVATIOMS
+//    }
+
     @PostMapping("/bookings/{bookingId}/cancel")
-    public String cancelBooking(@PathVariable Long bookingId, Principal principal) {
+    public String cancelBooking(
+            @PathVariable Long bookingId,
+            Principal principal
+    ) {
+
         guestService.cancelBooking(bookingId);
-//guestService.refundPayment(bookingId);
-        return "redirect:/guest/bookings"; // Redirect to MY RESERVATIOMS
+
+        BookingDTO booking = guestService.getBookingById(bookingId);
+        GuestPropertyDTO property = guestService.getPropertyById(booking.getPropertyId());
+
+        Long guestUserId = userService.findUserIdByFirebaseUid(booking.getGuestId());
+        String email = userService.fetchById(guestUserId).getEmail();
+
+        String msg = String.format(
+                "Your booking for property \"%s\" has been canceled.",
+                property.getTitle()
+        );
+        CreateNotificationDTO notifDto = new CreateNotificationDTO(
+                guestUserId,
+                email,
+                msg
+        );
+
+        try {
+            notifClient.createNotification(notifDto);
+        } catch (Exception e) {
+            logger.error("Failed to send cancellation notification for booking {}: {}", bookingId, e.getMessage());
+        }
+
+        return "redirect:/guest/bookings";
     }
+
 
     @GetMapping("/properties/{propertyId}/book/{bookingId}/pay")
     public String showBookingConfirmation(@PathVariable Long bookingId, @PathVariable Long propertyId, Model model, Principal principal) {
@@ -176,6 +210,33 @@ public class GuestController {
         // Redirect to reservations page
         return "redirect:/guest/bookings?paymentStatus=SUCCESS";
     }
+
+//    @PostMapping("/bookings/{bookingId}/cancel")
+//    public String bookingCanceled(
+//            @PathVariable Long bookingId,
+//            Principal principal
+//    ) {
+//
+//        guestService.cancelBooking(bookingId);
+//
+//        BookingDTO booking = guestService.getBookingById(bookingId);
+//        GuestPropertyDTO property = guestService.getPropertyById(booking.getPropertyId());
+//
+//        Long guestUserId = userService.findUserIdByFirebaseUid(booking.getGuestId());
+//        String email = userService.fetchById(guestUserId).getEmail();
+//
+//        String msg = String.format(
+//                "Your booking for property \"%s\" has been successfully canceled.",
+//                property.getTitle()
+//        );
+//        CreateNotificationDTO notifDto =
+//                new CreateNotificationDTO(guestUserId, email, msg);
+//
+//        notifClient.createNotification(notifDto);
+//
+//        return "redirect:/guest/bookings?canceled=true";
+//    }
+
 
     @GetMapping("/my-notifications")
     public String showNotifications(HttpSession session, Model model) {

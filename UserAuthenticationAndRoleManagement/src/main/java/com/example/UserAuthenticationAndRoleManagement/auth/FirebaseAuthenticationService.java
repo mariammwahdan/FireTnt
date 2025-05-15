@@ -481,7 +481,6 @@ public class FirebaseAuthenticationService {
         String uid = resp.getLocalId();
         User u = userRepo.findByFirebaseUid(uid)
                 .orElseGet(() -> {
-                    // Step 3: Create new user if not found
                     User n = new User();
                     n.setFirebaseUid(uid);
                     n.setEmail(resp.getEmail());
@@ -490,7 +489,7 @@ public class FirebaseAuthenticationService {
 
                     n = userRepo.save(n);
 
-                    // Step 4: Send the welcome notification via Notifications service
+
                     CreateNotificationDTO notificationDTO = new CreateNotificationDTO(
                             n.getUserId(),
                             n.getEmail(),
@@ -501,9 +500,9 @@ public class FirebaseAuthenticationService {
                     try {
                         restTemplate.postForObject(notificationServiceUrl, notificationDTO, Notification.class);
                     } catch (Exception e) {
-                        // Handle the exception if notification service fails, log it for debugging
+
                         e.printStackTrace();
-                        // Optional: Decide if you want to proceed even if notification service fails
+
                     }
 
                     return n;
