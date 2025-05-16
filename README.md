@@ -1,4 +1,4 @@
-# 🔥 FireTnT
+# 🏠 FireTnT
 
 **FireTnT** is a scalable, microservices-based platform for vacation rentals and property bookings across Egypt. Designed with a modular architecture using Spring Boot and secured by Firebase Authentication, the system supports multiple user roles (Guests, Hosts, Admins) with features tailored to each. FireTnT emphasizes performance, security, and usability.
 
