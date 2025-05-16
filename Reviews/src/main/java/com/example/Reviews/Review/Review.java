@@ -10,7 +10,7 @@ public class Review {
     private long id;
     private long propertyId;
     private String guestId;
-
+    private String guestName;
     private String reviewText;
 
 
@@ -19,7 +19,8 @@ public class Review {
     
     public Review() {
     }
-    public Review(String guestId, long propertyId, String reviewText, int rating) {
+    public Review(String guestName, String guestId, long propertyId, String reviewText, int rating) {
+        this.guestName=guestName;
         this.guestId = guestId;
         this.propertyId = propertyId;
         this.reviewText = reviewText;
@@ -64,5 +65,11 @@ public class Review {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+    public String getGuestName() {
+        return guestName;
+    }
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
     }
 }

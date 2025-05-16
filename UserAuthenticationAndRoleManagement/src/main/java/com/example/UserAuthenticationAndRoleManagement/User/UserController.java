@@ -87,7 +87,12 @@ public class UserController {
         String hostId = property.getHostId();
         User user= svc.fetchByFirebaseUid(hostId);
         List<ReviewDTO> reviews = hostService.getReviewsByPropertyId(id);
-        System.out.println(reviews);
+        for (ReviewDTO review : reviews) {
+            LOGGER.info(review.getReviewText());
+            LOGGER.info("Review ID: " + review.getGuestName());
+            LOGGER.info("Property ID: " + review.getPropertyId());
+        }
+
         model.addAttribute("reviews", reviews);
         model.addAttribute("firstname", user.getFirstName());
         model.addAttribute("lastname", user.getLastName());

@@ -32,19 +32,26 @@
                 </div>
                 <div><span class="font-medium">Nights:</span> <span th:text="${booking.booking.noOfNights}">4</span></div>
                 <div><span class="font-medium">Price:</span> EGP <span th:text="${booking.booking.price}">1200.00</span></div>
-                 </div>
+                <div>
+                    <span class="font-medium">Status:</span>
+                    <span th:text="${booking.booking.status.name()}"
+                          th:class="${booking.booking.status.name() == 'ACTIVE'} ? 'text-green-500 font-bold' : 'text-red-500 font-bold'">
+                    </span>
+                </div>
 
-            <form th:if="${booking.booking.status.name() != 'CANCELLED'}"
-                  th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.bookingId})}"
-                  method="post"
-                  class="mt-4">
-                <button type="submit"
-                        class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-md">
-                    Cancel Booking
-                </button>
-            </form>
+                <form th:if="${booking.booking.status.name() != 'CANCELLED'}"
+                      th:action="@{/guest/bookings/{id}/cancel(id=${booking.booking.bookingId})}"
+                      method="post"
+                      class="mt-4">
+                    <button type="submit"
+                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-md">
+                        Cancel Booking
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
 </body>
 </html>

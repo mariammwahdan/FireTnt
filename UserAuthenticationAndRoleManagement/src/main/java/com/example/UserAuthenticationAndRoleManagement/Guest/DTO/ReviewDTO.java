@@ -8,7 +8,7 @@ import lombok.Setter;
 public class ReviewDTO {
 
     private String guestId;
-
+private String guestName;
     private long propertyId;
 
 
@@ -16,6 +16,15 @@ public class ReviewDTO {
 
 
     private Integer rating;
+    @Override
+    public String toString() {
+        return "ReviewDTO{" +
+                "guestName='" + guestName + '\'' +
+                ", comment='" + reviewText + '\'' +
+                ", rating=" + rating +
+                '}';
+    }
+
 
 }
 

@@ -33,7 +33,7 @@ public class ReviewService {
 
     @DistributedLock(keyPrefix = "review:create", keyIdentifierExpression = "#dto.guestId + ':' + #dto.propertyId", leaseTime = 30, timeUnit = TimeUnit.SECONDS)
     public Review createReview(CreateReviewDTO dto) {
-        Review review = new Review(dto.getGuestId(), dto.getPropertyId(), dto.getReviewText(), dto.getRating());
+        Review review = new Review(dto.getGuestName(), dto.getGuestId(), dto.getPropertyId(), dto.getReviewText(), dto.getRating());
         Review saved = reviewRepository.save(review);
         invalidateCaches(dto.getPropertyId());
         return saved;
@@ -41,8 +41,10 @@ public class ReviewService {
 
     @DistributedLock(keyPrefix = "review:create", keyIdentifierExpression = "#propertyId + ':' + #dto.guestId", leaseTime = 30, timeUnit = TimeUnit.SECONDS)
     public Review createReview(Integer propertyId, CreateReviewDTO dto) {
-        Review review = new Review(dto.getGuestId(), propertyId, dto.getReviewText(), dto.getRating());
+        Review review = new Review(dto.getGuestName(), dto.getGuestId(), propertyId, dto.getReviewText(), dto.getRating());
+        logger.info( "Creating review for Guest: " + dto.getGuestName());
         Review saved = reviewRepository.save(review);
+        logger.info( "Creating review for Guest: " + saved.getGuestName());
         invalidateCaches(propertyId);
         return saved;
     }
@@ -84,7 +86,7 @@ public class ReviewService {
             logger.warning("Failed to deserialize reviews for property " + propertyId + ": " + e.getMessage());
         }
         List<Review> reviews = reviewRepository.findByPropertyId(propertyId);
-        try {
+          try {
             redisClient.set(key, objectMapper.writeValueAsString(reviews), CACHE_TTL);
         } catch (JsonProcessingException e) {
             logger.warning("Failed to cache reviews for property " + propertyId + ": " + e.getMessage());

@@ -6,12 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateReviewDTO {
-
-
     private long propertyId;
     private String guestId;
-
-        private String reviewText;
+    private String guestName;
+    private String reviewText;
 
 
 

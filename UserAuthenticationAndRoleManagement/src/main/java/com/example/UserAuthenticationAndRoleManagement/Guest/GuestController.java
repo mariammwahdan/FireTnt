@@ -5,6 +5,7 @@ import com.example.UserAuthenticationAndRoleManagement.Guest.Client.Notification
 import com.example.UserAuthenticationAndRoleManagement.Guest.DTO.*;
 import com.example.UserAuthenticationAndRoleManagement.Host.HostService;
 import com.example.UserAuthenticationAndRoleManagement.User.DTO.NotificationDto;
+import com.example.UserAuthenticationAndRoleManagement.User.User;
 import com.example.UserAuthenticationAndRoleManagement.User.UserService;
 import com.example.UserAuthenticationAndRoleManagement.auth.FirebasePrincipal;
 import jakarta.servlet.http.HttpSession;
@@ -118,13 +119,6 @@ public class GuestController {
         return "guest-reservations";
     }
 
-//    @PostMapping("/bookings/{bookingId}/cancel")
-//    public String cancelBooking(@PathVariable Long bookingId, Principal principal) {
-//        guestService.cancelBooking(bookingId);
-////guestService.refundPayment(bookingId);
-//        return "redirect:/guest/bookings"; // Redirect to MY RESERVATIOMS
-//    }
-
     @PostMapping("/bookings/{bookingId}/cancel")
     public String cancelBooking(
             @PathVariable Long bookingId,
@@ -211,32 +205,6 @@ public class GuestController {
         return "redirect:/guest/bookings?paymentStatus=SUCCESS";
     }
 
-//    @PostMapping("/bookings/{bookingId}/cancel")
-//    public String bookingCanceled(
-//            @PathVariable Long bookingId,
-//            Principal principal
-//    ) {
-//
-//        guestService.cancelBooking(bookingId);
-//
-//        BookingDTO booking = guestService.getBookingById(bookingId);
-//        GuestPropertyDTO property = guestService.getPropertyById(booking.getPropertyId());
-//
-//        Long guestUserId = userService.findUserIdByFirebaseUid(booking.getGuestId());
-//        String email = userService.fetchById(guestUserId).getEmail();
-//
-//        String msg = String.format(
-//                "Your booking for property \"%s\" has been successfully canceled.",
-//                property.getTitle()
-//        );
-//        CreateNotificationDTO notifDto =
-//                new CreateNotificationDTO(guestUserId, email, msg);
-//
-//        notifClient.createNotification(notifDto);
-//
-//        return "redirect:/guest/bookings?canceled=true";
-//    }
-
 
     @GetMapping("/my-notifications")
     public String showNotifications(HttpSession session, Model model) {
@@ -253,12 +221,12 @@ public class GuestController {
     }
     @GetMapping("/reviews/create/{propertyId}")
     public String showCreateReviewForm(@PathVariable Long propertyId, Model model) {
-        ReviewDTO reviewForm = new ReviewDTO();
+        CreateReviewDTO reviewForm = new CreateReviewDTO();
         reviewForm.setPropertyId(propertyId);
         String roleName = hostService.getRoleName();
         model.addAttribute("role", roleName);
         model.addAttribute("reviewForm", reviewForm);
-        return "create-review-form"; // Thymeleaf template
+        return "create-review-form";
     }
     @PostMapping("/reviews/create/{propertyId}")
         public String createReview(@Valid @ModelAttribute("reviewForm") CreateReviewDTO dto,
@@ -269,9 +237,19 @@ public class GuestController {
             return "create-review-form";
         }
         String guestId = hostService.getUidFromPrincipal(principal);
+        User user= userService.fetchByFirebaseUid(guestId);
+        String firstName = user.getFirstName() != null ? user.getFirstName() : "";
+        String lastName = user.getLastName() != null ? user.getLastName() : "";
+        dto.setGuestName(firstName + " " + lastName);
         dto.setGuestId(guestId);
         dto.setPropertyId(propertyId);
-        guestService.createReview(propertyId,dto);
+        logger.info("Review submitted: guestId={}, propertyId={}, rating={}, guest={}",
+                dto.getGuestId(),
+                dto.getPropertyId(),
+                dto.getRating(),
+                dto.getGuestName()
+        );
+        guestService.createReview(dto);
         model.addAttribute("message", "Review submitted successfully!");
         return "redirect:/api/users/properties/" + propertyId + "/details";
     }

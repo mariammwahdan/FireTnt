@@ -31,8 +31,8 @@ public class GuestPropertyClient {
         HttpEntity<GuestPropertyDTO> request = new HttpEntity<>(dto);
         restTemplate.exchange(url, HttpMethod.PUT, request, Void.class);
     }
-    public void createReview(long propertyId, CreateReviewDTO reviewDTO) {
-        String url = propertyServiceUrl + "/" + propertyId + "/reviews";
+    public void createReview(CreateReviewDTO reviewDTO) {
+        String url = propertyServiceUrl + "/" + reviewDTO.getPropertyId() + "/reviews";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

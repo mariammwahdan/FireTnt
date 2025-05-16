@@ -18,6 +18,8 @@ public class CreateReviewWithPropertyIdDTO {
     @Max(5)
     private Integer rating;
     private long propertyId;
+    private String guestName;
+
 
 
     public @NotNull String getGuestId() {
@@ -42,5 +44,14 @@ public class CreateReviewWithPropertyIdDTO {
 
     public void setRating(@NotNull @Min(1) @Max(5) Integer rating) {
         this.rating = rating;
+    }
+    public long getPropertyId() {
+        return propertyId;
+    }
+    public void setPropertyId(long propertyId) {
+        this.propertyId = propertyId;
+    }
+    public String getGuestName() {
+        return guestName;
     }
 }

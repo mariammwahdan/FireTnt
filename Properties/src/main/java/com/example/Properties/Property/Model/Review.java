@@ -4,19 +4,21 @@ package com.example.Properties.Property.Model;
 public class Review {
     private long id;
     private String guestId;
+    private String guestName;
     private long propertyId;
     private String reviewText;
     private Integer rating;
 
     public Review() {
     }
-    public Review(String guestId, long propertyId, String reviewText, int rating) {
+
+    public Review(String guestName, String guestId, long propertyId, String reviewText, int rating) {
+        this.guestName = guestName;
         this.guestId = guestId;
         this.propertyId = propertyId;
         this.reviewText = reviewText;
         this.rating = rating;
     }
-
     public long getId() {
         return id;
     }
@@ -56,4 +58,19 @@ public class Review {
     public void setRating(Integer rating) {
         this.rating = rating;
     }
+    public String getGuestName() {
+        return guestName;
+    }
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
+    }
+    @Override
+    public String toString() {
+        return "ReviewDTO{" +
+                "guestName='" + guestName + '\'' +
+                ", comment='" + reviewText + '\'' +
+                ", rating=" + rating +
+                '}';
+    }
+
 }

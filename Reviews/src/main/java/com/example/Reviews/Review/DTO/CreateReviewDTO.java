@@ -3,7 +3,7 @@ package com.example.Reviews.Review.DTO;
 
 public class CreateReviewDTO {
 
-
+private String guestName;
     private long propertyId;
     private String guestId;
 
@@ -43,6 +43,12 @@ public class CreateReviewDTO {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+    public String getGuestName() {
+        return guestName;
+    }
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
     }
 }
 

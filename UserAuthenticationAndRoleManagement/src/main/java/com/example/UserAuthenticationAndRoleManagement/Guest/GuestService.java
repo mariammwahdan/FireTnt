@@ -97,7 +97,7 @@ public GuestPropertyDTO getPropertyById(long propertyId) {
 
         return bookingId;
     }
-    public void createReview(long propertyId, CreateReviewDTO createReviewDTO) {
-        guestPropertyClient.createReview(propertyId, createReviewDTO);
+    public void createReview(CreateReviewDTO createReviewDTO) {
+        guestPropertyClient.createReview(createReviewDTO);
     }
 }
